@@ -43,7 +43,7 @@ export default defineConfig({
       // '@proyectos': path.resolve(__dirname, './src/modules/proyectos'),
       // '@recursosHumanos': path.resolve(__dirname, './src/modules/recursosHumanos'),
       // '@compras': path.resolve(__dirname, './src/modules/compras'),
-      // '@inventario': path.resolve(__dirname, './src/modules/inventario'),
+      '@inventario': path.resolve(__dirname, './src/modules/inventario'),
       // '@pos': path.resolve(__dirname, './src/modules/POS'),
       // '@facturacion': path.resolve(__dirname, './src/modules/facturacion'),
       // '@nomina': path.resolve(__dirname, './src/modules/nomina'),

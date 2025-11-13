@@ -24,7 +24,7 @@
       // "@recursosHumanos/*": ["src/modules/RecursosHumanos/*"],
       // "@pos/*": ["src/modules/POS/*"],
       // "@inversiones/*": ["src/modules/Inversiones/*"],
-      // "@inventario/*": ["src/modules/Inventario/*"],
+      "@inventario/*": ["src/modules/Inventario/*"],
       // "@comercial/*": ["src/modules/Comercial/*"],
       // "@facturacion/*": ["src/modules/Facturacion/*"],
       // "@nomina/*": ["src/modules/Nomina/*"],

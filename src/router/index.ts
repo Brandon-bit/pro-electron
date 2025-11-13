@@ -2,11 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import InSessionLayout from '@core/InSessionLayout/views/InSessionLayout.vue'
 import OutSessionLayout from '@core/OutSessionLayout/views/OutSessionLayout.vue'
-// import InSessionRoutes from './InSessionRoutes'
+//import InSessionRoutes from './InSessionRoutes'
 import Login from '@core/OutSessionLayout/views/Login.vue'
 // import NavBarRoutes from './NavBarRoutes'
 // import DefaultRoutes from './DefaultModuleRoutes'
-// import InventarioRoutes from './InventarioRoutes'
+import InventarioRoutes from './InventarioRoutes'
 // import MarketingRoutes from './MarketingRoutes'
 // import PosRoutes from './POSRoutes'
 // import ContabilidadRoutes from './ContabilidadRoutes'
@@ -34,7 +34,7 @@ const routes = [
             // ...DefaultRoutes,
             // ...NavBarRoutes,
             // ...GestionDeProyectosRoutes,
-            // ...InventarioRoutes,
+            ...InventarioRoutes,
             // ...ContabilidadRoutes,
             // ...MarketingRoutes,
             // ...ComprasRoutes,
