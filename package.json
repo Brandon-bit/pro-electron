@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "vite --config vite.config.web.ts",
     "dev:electron": "vite",
-    "build": "vue-tsc -b && vite build",
-    "build:web": "vue-tsc -b && vite build --config vite.config.web.ts",
-    "build:electron": "vue-tsc -b && vite build",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:web": "vue-tsc --noEmit && vite build --config vite.config.web.ts",
+    "build:electron": "vue-tsc --noEmit && vite build",
     "build:win": "npm run build:electron && electron-builder --win",
     "build:mac": "npm run build:electron && electron-builder --mac",
     "build:linux": "npm run build:electron && electron-builder --linux",
