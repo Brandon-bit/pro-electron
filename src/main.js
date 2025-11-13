@@ -1,0 +1,40 @@
+import { createApp } from 'vue';
+// Styles
+import './style.css';
+// App
+import App from './App.vue';
+// Router
+import router from './router';
+// Pinia
+import { createPinia } from 'pinia';
+// Toastification
+import Toast from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
+// Floatin vue
+import FloatingVue from 'floating-vue';
+import 'floating-vue/dist/style.css';
+// Theme
+import { useThemeStore } from './store/theme';
+import { nextTick } from 'vue';
+import { DatePicker } from 'v-calendar';
+import 'v-calendar/style.css';
+const app = createApp(App);
+app.use(createPinia());
+app.use(router);
+app.use(Toast);
+app.use(FloatingVue);
+// //calendar
+// app.component('VCalendar', Calendar)
+app.component('VDatePicker', DatePicker);
+const themeStore = useThemeStore();
+themeStore.loadTheme();
+app.mount('#app');
+nextTick(() => {
+    requestAnimationFrame(() => {
+        const loader = document.getElementById('initial-loader');
+        if (loader) {
+            loader.remove();
+        }
+    });
+});
+//# sourceMappingURL=main.js.map

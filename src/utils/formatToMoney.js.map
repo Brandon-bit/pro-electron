@@ -1,0 +1,1 @@
+{"version":3,"file":"formatToMoney.js","sourceRoot":"","sources":["formatToMoney.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,MAAM,aAAa,GAAG,CAAC,KAAa,EAAE,SAAiB,OAAO,EAAE,WAAmB,KAAK,EAAU,EAAE;IACzG,OAAO,KAAK,CAAC,cAAc,CAAC,MAAM,EAAE;QAClC,KAAK,EAAE,UAAU;QACjB,QAAQ;QACR,qBAAqB,EAAE,CAAC;KACzB,CAAC,CAAC;AACL,CAAC,CAAA"}
