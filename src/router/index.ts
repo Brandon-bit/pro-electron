@@ -7,6 +7,7 @@ import Login from '@core/OutSessionLayout/views/Login.vue'
 import NavBarRoutes from './NavBarRoutes'
 import DefaultRoutes from './DefaultModuleRoutes'
 import InventarioRoutes from './InventarioRoutes'
+import ProcesosRoutes from './ProcesosRoutes'
 // import MarketingRoutes from './MarketingRoutes'
 // import PosRoutes from './POSRoutes'
 import ContabilidadRoutes from './ContabilidadRoutes'
@@ -34,6 +35,7 @@ const routes = [
             ...DefaultRoutes,
             ...NavBarRoutes,
             ...GestionDeProyectosRoutes,
+            ...ProcesosRoutes,
             ...InventarioRoutes,
             ...ContabilidadRoutes,
             // ...MarketingRoutes,

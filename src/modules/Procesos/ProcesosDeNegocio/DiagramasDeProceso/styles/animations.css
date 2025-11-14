@@ -1,0 +1,252 @@
+/* ============================================
+   ANIMACIONES Y TRANSICIONES
+   Estilos para el módulo de Diagramas de Proceso
+   ============================================ */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scale In Animation */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Slide In From Right */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Pulse Animation for badges */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* ============================================
+   CLASES DE ANIMACIÓN
+   ============================================ */
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* ============================================
+   TRANSICIONES SUAVES
+   ============================================ */
+
+/* Cards y panels */
+.card {
+    transition: box-shadow 0.3s ease;
+    /* Sin z-index ni transform para evitar crear stacking context */
+}
+
+.card:hover {
+    /* NO usar transform porque crea stacking context que limita dropdowns */
+    /* transform: translateY(-2px); ❌ */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    /* NO agregar position o z-index para evitar conflictos con dropdowns */
+}
+
+/* Botones con hover effect */
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Modal backdrop animation */
+.modal-backdrop {
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-box {
+    animation: scaleIn 0.3s ease-out;
+}
+
+/* Asegurar que modales estén SIEMPRE por encima de dropdowns */
+.modal {
+    z-index: 9999 !important;
+}
+
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+/* Badges con pulse */
+.badge-success, .badge-error, .badge-warning, .badge-info {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ============================================
+   DROPDOWN FIX - Asegurar que siempre estén visibles
+   ============================================ */
+
+/* Forzar que los dropdown-content estén siempre en el tope */
+.dropdown .dropdown-content {
+    z-index: 1000 !important;
+}
+
+/* El contenedor dropdown debe establecer un nuevo stacking context */
+.dropdown {
+    position: relative !important;
+    z-index: 1;
+}
+
+/* Cuando el dropdown está abierto (tiene focus), elevar su z-index */
+.dropdown:has([tabindex="0"]:focus),
+.dropdown:focus-within {
+    z-index: 999 !important;
+}
+
+/* Asegurar que grids NO creen stacking context que limite dropdowns */
+.grid {
+    /* NO usar position relative, transform, o z-index aquí */
+    isolation: auto;
+}
+
+/* Las cards NO deben limitar el z-index de sus hijos */
+.card {
+    /* NO crear nuevo stacking context */
+    isolation: auto;
+}
+
+/* ============================================
+   DRAG AND DROP
+   ============================================ */
+
+.drop-zone {
+    transition: all 0.3s ease;
+}
+
+.drop-zone.drag-over {
+    background-color: rgba(96, 165, 250, 0.1);
+    border-color: #60a5fa;
+    transform: scale(1.02);
+}
+
+/* ============================================
+   LIST ANIMATIONS
+   ============================================ */
+
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.3s ease;
+}
+
+.list-enter-from {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.list-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+/* ============================================
+   SMOOTH SCROLL
+   ============================================ */
+
+.smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+.hover-brightness:hover {
+    filter: brightness(1.1);
+    transition: filter 0.2s ease;
+}
+
+/* ============================================
+   STAGGER ANIMATION (para listas)
+   ============================================ */
+
+.stagger-item {
+    animation: fadeIn 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(n+6) { animation-delay: 0.3s; }

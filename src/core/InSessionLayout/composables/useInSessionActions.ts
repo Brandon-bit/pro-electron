@@ -1216,8 +1216,8 @@ export function useInSessionActions() {
                     open: false,
                     views: [
                         {
-                            url: '/procesos/procesos-de-negocio/cadena-de-valor',
-                            name: 'Cadena de Valor'
+                            url: '/procesos/procesos-de-negocio/cadenas-de-valor',
+                            name: 'Cadenas de Valor'
                         },
                         {
                             url: '/procesos/procesos-de-negocio/diagrama-de-procesos',
@@ -1255,32 +1255,13 @@ export function useInSessionActions() {
                     open: false,
                     views: [
                         {
-                            url: '/procesos/manuales-y-politicas/almacenamiento-de-manuales-y-politicas',
-                            name: 'Almacenamiento de Manuales y Políticas'
+                            url: '/procesos/manuales-y-politicas/matriz-de-manuales',
+                            name: 'Matriz de Manuales'
                         },
                         {
-                            url: '/procesos/manuales-y-politicas/configuracion',
-                            name: 'Configuración'
+                            url: '/procesos/manuales-y-politicas/auditorias',
+                            name: 'Auditorías'
                         }
-                    ]
-                },
-                {
-                    icon: '',
-                    name: 'Administración del Cambio',
-                    open: false,
-                    views: [
-                        {
-                            url: '/procesos/administracion-del-cambio/generacion-y-gestion-de-encuestas',
-                            name: 'Generación y Gestión de Encuestas'
-                        },
-                        {
-                            url: '/procesos/administracion-del-cambio/documentos-de-capacitacion',
-                            name: 'Documentos de Capacitación'
-                        },
-                        {
-                            url: '/procesos/administracion-del-cambio/generacion-y-gestion-de-examenes',
-                            name: 'Generación y Gestión de Exámenes'
-                        },
                     ]
                 }
             ]

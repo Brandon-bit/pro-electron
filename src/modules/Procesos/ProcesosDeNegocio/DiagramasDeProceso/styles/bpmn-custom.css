@@ -1,0 +1,724 @@
+.bjs-container {
+    --bjs-font-family: Arial, sans-serif;
+
+    --color-grey-225-10-15: hsl(225, 10%, 15%);
+    --color-grey-225-10-35: hsl(225, 10%, 35%);
+    --color-grey-225-10-55: hsl(225, 10%, 55%);
+    --color-grey-225-10-75: hsl(225, 10%, 75%);
+    --color-grey-225-10-80: hsl(225, 10%, 80%);
+    --color-grey-225-10-85: hsl(225, 10%, 85%);
+    --color-grey-225-10-90: hsl(225, 10%, 90%);
+    --color-grey-225-10-95: hsl(225, 10%, 95%);
+    --color-grey-225-10-97: hsl(225, 10%, 97%);
+
+    --color-blue-205-100-45: hsl(205, 100%, 45%);
+    --color-blue-205-100-45-opacity-30: hsla(205, 100%, 45%, 30%);
+    --color-blue-205-100-50: hsl(205, 100%, 50%);
+    --color-blue-205-100-95: hsl(205, 100%, 95%);
+
+    --color-green-150-86-44: hsl(150, 86%, 44%);
+
+    --color-red-360-100-40: hsl(360, 100%, 40%);
+    --color-red-360-100-45: hsl(360, 100%, 45%);
+    --color-red-360-100-92: hsl(360, 100%, 92%);
+    --color-red-360-100-97: hsl(360, 100%, 97%);
+
+    --color-white: hsl(0, 0%, 100%);
+    --color-black: hsl(0, 0%, 0%);
+    --color-black-opacity-05: hsla(0, 0%, 0%, 5%);
+    --color-black-opacity-10: hsla(0, 0%, 0%, 10%);
+
+    --breadcrumbs-font-family: var(--bjs-font-family);
+    --breadcrumbs-item-color: var(--color-blue-205-100-50);
+    --breadcrumbs-arrow-color: var(--color-black);
+    --drilldown-fill-color: var(--color-white);
+    --drilldown-background-color: var(--color-blue-205-100-50);
+}
+
+.bjs-breadcrumbs {
+    position: absolute;
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    top: 30px;
+    left: 30px;
+    padding: 0px;
+    margin: 0px;
+    font-family: var(--breadcrumbs-font-family);
+    font-size: 16px;
+    line-height: normal;
+}
+
+.bjs-breadcrumbs-shown .bjs-breadcrumbs {
+    display: flex;
+}
+
+.djs-palette-shown .bjs-breadcrumbs {
+    left: 90px;
+}
+
+.djs-palette-shown.djs-palette-two-column .bjs-breadcrumbs {
+    left: 140px;
+}
+
+.bjs-breadcrumbs li {
+    display: inline-flex;
+    padding-bottom: 5px;
+}
+
+.bjs-breadcrumbs li a {
+    cursor: pointer;
+    color: var(--breadcrumbs-item-color);
+}
+
+.bjs-breadcrumbs li:last-of-type a {
+    color: inherit;
+    cursor: default;
+}
+
+.bjs-breadcrumbs li:not(:first-child)::before {
+    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /><path d="M0 0h24v24H0z" fill="none" /></svg>');
+    padding: 0 8px;
+    color: var(--breadcrumbs-arrow-color);
+    height: 1em;
+}
+
+.bjs-breadcrumbs .bjs-crumb {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bjs-drilldown {
+    width: 20px;
+    height: 20px;
+
+    padding: 0px;
+    margin-left: -20px;
+
+    cursor: pointer;
+    border: none;
+    border-radius: 2px;
+    outline: none;
+
+    fill: var(--drilldown-fill-color);
+    background-color: var(--drilldown-background-color);
+}
+
+.bjs-drilldown-empty {
+    display: none;
+}
+
+.selected .bjs-drilldown-empty {
+    display: inherit;
+}
+
+[data-popup="align-elements"] .djs-popup-body {
+    display: flex;
+}
+
+[data-popup="align-elements"] .djs-popup-body [data-group]+[data-group] {
+    border-left: 1px solid var(--popup-border-color);
+}
+
+[data-popup="align-elements"] [data-group="align"] {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+[data-popup="align-elements"] .djs-popup-body .entry {
+    padding: 6px 8px;
+}
+
+[data-popup="align-elements"] .djs-popup-body .entry img {
+    display: block;
+
+    height: 20px;
+    width: 20px;
+}
+
+[data-popup="align-elements"] .bjs-align-elements-menu-entry {
+    display: inline-block;
+}
+
+
+#quality-assurance,
+#x-assurance,
+#o-assurance {
+    color: #111;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+#quality-assurance #form input,
+#x-assurance #form input,
+#o-assurance #form input {
+    border: solid 1px #ccc;
+    border-radius: 2px;
+    font-family: "Arial", sans-serif;
+    padding: 10px;
+}
+
+#quality-assurance #form input[type="text"],
+#x-assurance #form input[type="text"],
+#o-assurance #form input[type="text"] {
+    width: 100%;
+}
+
+#quality-assurance #form input[type="submit"],
+#x-assurance #form input[type="submit"],
+#o-assurance #form input[type="submit"] {
+    background-color: #fafafa;
+    color: #111;
+}
+
+#quality-assurance #form #warning,
+#x-assurance #form #warning,
+#o-assurance #form #warning {
+    background-color: rgba(255, 0, 0, .25);
+    border-radius: 2px;
+    padding: 10px;
+}
+
+
+.panel {
+    background-color: #fafafa;
+    border: solid 1px #ccc;
+    border-radius: 2px;
+    font-family: "Arial", sans-serif;
+    padding: 10px;
+}
+
+.py-djs-container.page {
+    width: 257mm;
+    height: 364mm;
+    margin: auto;
+    border: 1px #d3d3d3 solid;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+}
+
+.py-djs-container.grid {
+    position: relative;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2QwZDBkMCIgb3BhY2l0eT0iMC4yIiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDBkMGQwIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=");
+}
+
+.py-djs-container .djs-container {
+    position: initial !important;
+}
+
+.py-djs-container .djs-container .djs-palette {
+    left: -55px !important;
+    top: 0 !important;
+    width: 48px;
+}
+
+.py-djs-container .djs-container .djs-overlays .djs-overlay-drilldown {
+    top: 88px !important;
+}
+
+.py-djs-container .djs-container .djs-overlays .djs-overlay-drilldown .bjs-drilldown svg {
+    transform: translatey(-4px);
+}
+
+.py-djs-container .djs-container .djs-overlays .djs-overlay-externalLinkProc {
+    display: none;
+}
+
+.py-djs-container .djs-container .djs-overlays.selected .djs-overlay-externalLinkProc {
+    display: initial;
+}
+
+.py-djs-container .djs-palette-shown .bjs-breadcrumbs {
+    left: 40px !important;
+}
+
+.py-djs-container .djs-element.djs-shape>.djs-visual+.djs-hit.djs-hit-no-move+.djs-hit.djs-hit-click-stroke+.djs-hit.djs-hit-all {
+    stroke-opacity: 1 !important;
+    stroke: black !important;
+    stroke-width: 1px !important;
+    stroke-dasharray: 3, 3;
+}
+
+.py-djs-container .bckg-color-task:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #b6fcf2 !important;
+}
+
+.py-djs-container .bckg-color-task-risk:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #ffc0cb !important;
+}
+
+/* Colores de borde para riesgos - aplicado al rectángulo del Task */
+.py-djs-container .border-color-risk-pink:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    stroke: #ffc0cb !important; 
+    stroke-width: 3px !important;
+}
+
+.py-djs-container .border-color-risk-yellow:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    stroke: #ffeb3b !important; 
+    stroke-width: 3px !important;
+}
+
+.py-djs-container .border-color-risk-orange:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    stroke: #ff9800 !important; 
+    stroke-width: 3px !important;
+}
+
+.py-djs-container .border-color-risk-red:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    stroke: #f44336 !important; 
+    stroke-width: 3px !important;
+}
+
+/* 🎨 NUEVOS: Colores de fondo personalizados para tareas */
+.py-djs-container .background-color-lightblue:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #add8e6 !important;
+}
+
+.py-djs-container .background-color-lightgreen:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #90ee90 !important;
+}
+
+.py-djs-container .background-color-lightcyan:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #e0ffff !important;
+}
+
+.py-djs-container .background-color-lightyellow:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #ffffe0 !important;
+}
+
+.py-djs-container .background-color-lightpink:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #ffb6c1 !important;
+}
+
+.py-djs-container .background-color-lavender:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #e6e6fa !important;
+}
+
+.py-djs-container .bckg-color-service:not(svg):not(.djs-connection) .djs-visual>rect:nth-child(1) {
+    fill: #1d8386 !important;
+}
+
+.py-djs-container .bckg-color-startevent:not(svg):not(.djs-connection) .djs-visual>circle:nth-child(1) {
+    fill: #6dee73 !important;
+}
+
+.py-djs-container .bckg-color-endevent:not(svg):not(.djs-connection) .djs-visual>circle:nth-child(1) {
+    fill: #f00 !important;
+}
+
+.py-djs-container .bckg-color-exclusivegateway:not(svg):not(.djs-connection) .djs-visual>polygon:nth-child(1) {
+    fill: #fcec83 !important;
+}
+
+#nav-tabContent-djs .tab-pane {
+    padding-left: 60px !important;
+}
+
+.py-djs-horizontal .py-djs-container.page {
+    width: 90%;
+    height: 257mm;
+}
+
+a:not([href]):not([class]) {
+    color: var(--breadcrumbs-item-color);
+}
+
+#panel-shadow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .4);
+    z-index: 1;
+}
+
+.zix-1 {
+    z-index: 1;
+}
+
+/* 🎨 CONTEXT PAD / TOOLBOX: Estilos fijos para modo claro y oscuro */
+.djs-context-pad {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.djs-context-pad .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    fill: #000000 !important;
+}
+
+.djs-context-pad .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-context-pad .entry:active {
+    background-color: #e0e0e0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+/* Íconos SVG dentro del context pad */
+.djs-context-pad .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+.djs-context-pad .entry:hover svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Context pad container */
+.djs-context-pad-container {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+}
+
+/* Specific entries in context pad */
+.djs-context-pad .entry.djs-context-pad-entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-context-pad .entry.djs-context-pad-entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+/* Para elementos específicos del context pad como append, connect, etc. */
+.djs-context-pad [data-action] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-context-pad [data-action]:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-context-pad [data-action] svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* También aplicar a contenedores específicos del proyecto */
+.py-djs-container .djs-context-pad {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.py-djs-container .djs-context-pad .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.py-djs-container .djs-context-pad .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.py-djs-container .djs-context-pad .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 SUBMENÚS Y POPUPS: Todos los menús emergentes del BPMN */
+.djs-popup {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    color: #000000 !important;
+}
+
+.djs-popup .djs-popup-body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+.djs-popup .djs-popup-header {
+    background-color: #f8f8f8 !important;
+    color: #000000 !important;
+    border-bottom: 1px solid #cccccc !important;
+}
+
+.djs-popup .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-popup .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-popup .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 PALETTE: Paleta de herramientas lateral */
+.djs-palette {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.djs-palette .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+    border: none !important;
+}
+
+.djs-palette .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-palette .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+.djs-palette .group {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+.djs-palette .group .group-title {
+    color: #000000 !important;
+    background-color: #f8f8f8 !important;
+}
+
+/* 🎨 DROPDOWN MENUS: Menús desplegables */
+.djs-dropdown {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.djs-dropdown .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-dropdown .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-dropdown .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 CONTEXT MENU: Menús contextuales */
+.context-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    color: #000000 !important;
+}
+
+.context-menu .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.context-menu .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.context-menu .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 REPLACE MENU: Menú de reemplazo */
+.djs-replace-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.djs-replace-menu .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-replace-menu .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-replace-menu .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 CREATE MENU: Menú de creación de elementos */
+.djs-create-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.djs-create-menu .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-create-menu .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-create-menu .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 APPEND MENU: Menús de agregar elementos */
+.djs-append-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.djs-append-menu .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-append-menu .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.djs-append-menu .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 TOOLTIP: Tooltips y elementos informativos */
+.djs-tooltip {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+}
+
+.djs-tooltip-content {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* 🎨 POPUP MENU: Menús popup genéricos */
+.popup-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    color: #000000 !important;
+}
+
+.popup-menu .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.popup-menu .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.popup-menu .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* 🎨 APLICAR TAMBIÉN A CONTENEDORES ESPECÍFICOS DEL PROYECTO */
+.py-djs-container .djs-popup,
+.py-djs-container .djs-palette,
+.py-djs-container .djs-dropdown,
+.py-djs-container .context-menu,
+.py-djs-container .djs-replace-menu,
+.py-djs-container .djs-create-menu,
+.py-djs-container .djs-append-menu,
+.py-djs-container .popup-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    color: #000000 !important;
+}
+
+.py-djs-container .djs-popup .entry,
+.py-djs-container .djs-palette .entry,
+.py-djs-container .djs-dropdown .entry,
+.py-djs-container .context-menu .entry,
+.py-djs-container .djs-replace-menu .entry,
+.py-djs-container .djs-create-menu .entry,
+.py-djs-container .djs-append-menu .entry,
+.py-djs-container .popup-menu .entry {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.py-djs-container .djs-popup .entry:hover,
+.py-djs-container .djs-palette .entry:hover,
+.py-djs-container .djs-dropdown .entry:hover,
+.py-djs-container .context-menu .entry:hover,
+.py-djs-container .djs-replace-menu .entry:hover,
+.py-djs-container .djs-create-menu .entry:hover,
+.py-djs-container .djs-append-menu .entry:hover,
+.py-djs-container .popup-menu .entry:hover {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+.py-djs-container .djs-popup .entry svg,
+.py-djs-container .djs-palette .entry svg,
+.py-djs-container .djs-dropdown .entry svg,
+.py-djs-container .context-menu .entry svg,
+.py-djs-container .djs-replace-menu .entry svg,
+.py-djs-container .djs-create-menu .entry svg,
+.py-djs-container .djs-append-menu .entry svg,
+.py-djs-container .popup-menu .entry svg {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
