@@ -1,17 +1,36 @@
 export type HolidayType = {
-    id: string
+    id: number
     date: string
-    day: string
     description: string
-    year: number
+    active: boolean
 }
 
 export type HolidayFormType = {
-    date: string
+    date: Date
     description: string
+    active: boolean,
 }
 
 export type YearGroupType = {
     year: number
     holidays: HolidayType[]
+}
+
+export type YearGroupResponseType = {
+    anio: number
+    diasInhabiles: HolidayResponseType[]
+}
+
+export type HolidayResponseType = {
+    dni: number
+    fecha: Date
+    descripcion: string
+    activo: boolean
+}
+
+export type HolidayRequestType = {
+    dni?: number
+    fecha: Date
+    descripcion: string
+    activo: boolean
 }

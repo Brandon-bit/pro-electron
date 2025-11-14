@@ -6,31 +6,28 @@ import useHolidayStore from '@/modules/DefaultModule/Configuracion/DiasInhabiles
 import { useHolidayActions } from '@/modules/DefaultModule/Configuracion/DiasInhabiles/composables/useHolidayActions'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { holidaySchema } from '@defaultModule/Configuracion/DiasInhabiles/validations/holidayValidations'
-import AddHolidayForm from './AddHolidayForm.vue'
-import DeleteHoliday from './DeleteHoliday.vue'
+import { yearSchema } from '@defaultModule/Configuracion/DiasInhabiles/validations/holidayValidations'
+import AddYearHolidayForm from './AddYearForm.vue'
+import DeleteYearHoliday from './DeleteYear.vue'
 
 const modalStore = useModalStore()
 const holidayStore = useHolidayStore()
-const { createHoliday, deleteHoliday } = useHolidayActions()
+const { createYearHoliday, deleteYearHoliday } = useHolidayActions()
 
 const { handleSubmit, isSubmitting, resetForm, setValues } = useForm({
-    validationSchema: toTypedSchema(holidaySchema),
+    validationSchema: toTypedSchema(yearSchema),
     validateOnMount: false,
     initialValues: {
-        date: '',
-        description: ''
+        year: 0
     }
 })
 
 watch(
-    () => holidayStore.selectedHoliday,
-    (holiday) => {
-        if (holiday) {
+    () => holidayStore.selectedYear,
+    (year) => {
+        if (year) {
             setValues({
-                date: holiday?.date,
-                description: holiday?.description,
-                active: holiday?.active
+                year: year
             })
         }
     },
@@ -39,39 +36,37 @@ watch(
 
 const modalMap = {
     CREATE: {
-        component: AddHolidayForm,
-        action: createHoliday
+        component: AddYearHolidayForm,
+        action: createYearHoliday
     },
     DELETE: {
-        component: DeleteHoliday,
-        action: deleteHoliday
+        component: DeleteYearHoliday,
+        action: deleteYearHoliday
     }
 }
 
 const currentModalComponent = computed(() => {
-    const modalType = modalStore.modals[holidayStore.holidayModalId]?.type
+    const modalType = modalStore.modals[holidayStore.yearModalId]?.type
     return modalMap[modalType]?.component
 })
 
 const onSubmit = handleSubmit(async (formValues) => {
-    const modalType = modalStore.modals[holidayStore.holidayModalId]?.type
+    const modalType = modalStore.modals[holidayStore.yearModalId]?.type
     const action = modalMap[modalType]?.action
-    await action(formValues)
-    modalStore.close(holidayStore.holidayModalId)
+    await action(formValues.year)
+    modalStore.close(holidayStore.yearModalId)
 })
 
 const onClose = () => {
     resetForm()
-    holidayStore.clearData()
     holidayStore.clearYear()
 }
-
 </script>
 
 <template>
     <BaseModal
         :onSubmit="onSubmit"
-        :modalId="holidayStore.holidayModalId"
+        :modalId="holidayStore.yearModalId"
         :isSubmitting="isSubmitting"
         :onClose="onClose"
     >

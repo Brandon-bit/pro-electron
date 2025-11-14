@@ -40,7 +40,6 @@ export const useSubCategoryActions = () => {
     const deleteSubCategory = async () : Promise<{ message : string, status : string , data : SubCategoryResponseType }> => {
         let id = categoryStore.selectedSubCategory?.id
         if(id == undefined) id = 0
-        console.log(id)
         const response = await deleteSubCategoryService(id)
         return {
             message: response.message,
