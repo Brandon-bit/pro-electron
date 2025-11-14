@@ -18,7 +18,7 @@ import ContabilidadRoutes from './ContabilidadRoutes'
 // import SalesRoutes from './SalesRoute'
 // import PlaneacionEstrategicaRoutes from './PlaneacionEstrategicaRoutes'
 // import MesaDeControlRoutes from './MesaDeControlRoutes'
-// import FiscalRoutes from './FiscalRoutes'
+import FiscalRoutes from './FiscalRoutes'
 // import InversionesRoutes from './InversionesRoutes'
 import GestionDeProyectosRoutes from './GestionDeProyectosRoutes'
 import DiagramasDeDecisionRoutes from './DiagramasDeDecisionRoutes'
@@ -46,7 +46,7 @@ const routes = [
             // ...SalesRoutes,
             // ...PlaneacionEstrategicaRoutes,
             // ...MesaDeControlRoutes,
-            // ...FiscalRoutes,
+            ...FiscalRoutes,
             // ...InversionesRoutes,
             ...DiagramasDeDecisionRoutes,
             ...AdministracionDelCambioRoutes
