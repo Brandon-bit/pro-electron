@@ -15,7 +15,7 @@ onMounted(() => {
         renderer: 'svg',
         loop: true,
         autoplay: true,
-        path: '/icono.json'
+        path: 'icono.json'
     })
 })
 
