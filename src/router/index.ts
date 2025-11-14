@@ -5,7 +5,7 @@ import OutSessionLayout from '@core/OutSessionLayout/views/OutSessionLayout.vue'
 //import InSessionRoutes from './InSessionRoutes'
 import Login from '@core/OutSessionLayout/views/Login.vue'
 // import NavBarRoutes from './NavBarRoutes'
-// import DefaultRoutes from './DefaultModuleRoutes'
+import DefaultRoutes from './DefaultModuleRoutes'
 import InventarioRoutes from './InventarioRoutes'
 // import MarketingRoutes from './MarketingRoutes'
 // import PosRoutes from './POSRoutes'
@@ -31,7 +31,7 @@ const routes = [
         meta: { requiresAuth: true },
         children: [
             //...InSessionRoutes,
-            // ...DefaultRoutes,
+            ...DefaultRoutes,
             // ...NavBarRoutes,
             // ...GestionDeProyectosRoutes,
             ...InventarioRoutes,
