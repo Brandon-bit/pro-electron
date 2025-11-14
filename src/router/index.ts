@@ -16,10 +16,10 @@ import ContabilidadRoutes from './ContabilidadRoutes'
 // import RRHHRoutes from './RRHHRoutes'
 // import NominaRoutes from './NominaRoutes'
 // import SalesRoutes from './SalesRoute'
-// import PlaneacionEstrategicaRoutes from './PlaneacionEstrategicaRoutes'
-// import MesaDeControlRoutes from './MesaDeControlRoutes'
+import PlaneacionEstrategicaRoutes from './PlaneacionEstrategicaRoutes'
+import MesaDeControlRoutes from './MesaDeControlRoutes'
 import FiscalRoutes from './FiscalRoutes'
-// import InversionesRoutes from './InversionesRoutes'
+import InversionesRoutes from './InversionesRoutes'
 import GestionDeProyectosRoutes from './GestionDeProyectosRoutes'
 import DiagramasDeDecisionRoutes from './DiagramasDeDecisionRoutes'
 import AdministracionDelCambioRoutes from './AdministracionDelCambioRoutes'
@@ -44,10 +44,10 @@ const routes = [
             // ...RRHHRoutes,
             // ...NominaRoutes,
             // ...SalesRoutes,
-            // ...PlaneacionEstrategicaRoutes,
-            // ...MesaDeControlRoutes,
+            ...PlaneacionEstrategicaRoutes,
+            ...MesaDeControlRoutes,
             ...FiscalRoutes,
-            // ...InversionesRoutes,
+            ...InversionesRoutes,
             ...DiagramasDeDecisionRoutes,
             ...AdministracionDelCambioRoutes
         ]
