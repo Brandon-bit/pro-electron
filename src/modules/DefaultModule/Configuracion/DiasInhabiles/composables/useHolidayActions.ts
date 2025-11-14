@@ -160,12 +160,18 @@ export const useHolidayActions = () => {
     const deleteHoliday = async (): Promise<boolean> => {
         try {
             const holiday = holidayStore.selectedHoliday
-            if(holiday == null) return false
-            await holidayService.deleteHolidayService(holiday.id, true)
+            if (!holiday) return false
+
+            const deletedId = holiday.id
+
+            await holidayService.deleteHolidayService(deletedId, true)
             showNotification('Día inhábil eliminado exitosamente', 'success')
-            const year = holidayStore.yearHolidays.find(year => year.year === holidayStore.selectedYear)
-            if(year)
-                year.holidays = year.holidays.filter(holiday => holiday.id !== holiday.id)
+
+            const yearGroup = holidayStore.yearHolidays.find(y => y.year === holidayStore.selectedYear)
+            if (yearGroup) {
+                yearGroup.holidays = yearGroup.holidays.filter(h => h.id !== deletedId)
+            }
+
             return true
         } catch (error) {
             showNotification('Error al eliminar el día inhábil', 'error')

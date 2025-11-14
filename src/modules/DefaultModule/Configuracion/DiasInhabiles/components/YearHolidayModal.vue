@@ -26,9 +26,10 @@ watch(
     () => holidayStore.selectedYear,
     (year) => {
         if (year) {
-            setValues({
-                year: year
-            })
+            setValues({ year })
+        } else {
+            // Cuando se limpia selectedYear (0), reseteamos el formulario
+            resetForm({ values: { year: 0 } })
         }
     },
     { immediate: true }
@@ -54,6 +55,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     const modalType = modalStore.modals[holidayStore.yearModalId]?.type
     const action = modalMap[modalType]?.action
     await action(formValues.year)
+    holidayStore.clearYear()
     modalStore.close(holidayStore.yearModalId)
 })
 

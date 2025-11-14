@@ -30,11 +30,27 @@ watch(
             setValues({
                 date: holiday?.date,
                 description: holiday?.description,
-                active: holiday?.active
+                active: holiday?.active,
             })
         }
     },
     { immediate: true }
+)
+
+watch(
+    () => holidayStore.selectedYear,
+    (year) => {
+        const modalType = modalStore.modals[holidayStore.holidayModalId]?.type
+
+        // Solo para CREATE y cuando no hay holiday seleccionado (nuevo registro)
+        if (modalType === 'CREATE' && year && !holidayStore.selectedHoliday) {
+            setValues({
+                date: `${year}-01-01`,
+                description: '',
+                active: true,
+            })
+        }
+    }
 )
 
 const modalMap = {
@@ -53,12 +69,26 @@ const currentModalComponent = computed(() => {
     return modalMap[modalType]?.component
 })
 
-const onSubmit = handleSubmit(async (formValues) => {
+const onSubmit = async () => {
     const modalType = modalStore.modals[holidayStore.holidayModalId]?.type
-    const action = modalMap[modalType]?.action
-    await action(formValues)
-    modalStore.close(holidayStore.holidayModalId)
-})
+
+    // Para creación, usamos handleSubmit con validación del esquema
+    if (modalType === 'CREATE') {
+        await handleSubmit(async (formValues) => {
+            await createHoliday(formValues)
+            holidayStore.clearYear()
+            modalStore.close(holidayStore.holidayModalId)
+        })()
+        return
+    }
+
+    // Para eliminación, no necesitamos validar el formulario
+    if (modalType === 'DELETE') {
+        await deleteHoliday()
+        holidayStore.clearYear()
+        modalStore.close(holidayStore.holidayModalId)
+    }
+}
 
 const onClose = () => {
     resetForm()

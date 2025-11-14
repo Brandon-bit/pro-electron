@@ -12,6 +12,8 @@ const props = withDefaults(
         inputClass?: string
         readonly?: boolean
         allowDecimal?: boolean
+        min?: string
+        max?: string
     }>(),
     {
         readonly: false,
@@ -36,6 +38,8 @@ const { value, errorMessage } = useField(props.name)
             :readonly="props.readonly"
             :type="props.type"
             :placeholder="props.placeholder"
+            :min="props.min"
+            :max="props.max"
             :step="props.type === 'number' ? (allowDecimal ? '0.01' : '1') : undefined"
             :class="['input w-full', { 'input-error': errorMessage }, props.inputClass]"
         />
