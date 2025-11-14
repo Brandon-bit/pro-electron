@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import InSessionLayout from '@core/InSessionLayout/views/InSessionLayout.vue'
 import OutSessionLayout from '@core/OutSessionLayout/views/OutSessionLayout.vue'
-//import InSessionRoutes from './InSessionRoutes'
+import InSessionRoutes from './InSessionRoutes'
 import Login from '@core/OutSessionLayout/views/Login.vue'
 // import NavBarRoutes from './NavBarRoutes'
 import DefaultRoutes from './DefaultModuleRoutes'
@@ -20,9 +20,9 @@ import ContabilidadRoutes from './ContabilidadRoutes'
 // import MesaDeControlRoutes from './MesaDeControlRoutes'
 // import FiscalRoutes from './FiscalRoutes'
 // import InversionesRoutes from './InversionesRoutes'
-// import GestionDeProyectosRoutes from './GestionDeProyectosRoutes'
-// import DiagramasDeDecisionRoutes from './DiagramasDeDecisionRoutes'
-// import AdministracionDelCambioRoutes from './AdministracionDelCambioRoutes'
+import GestionDeProyectosRoutes from './GestionDeProyectosRoutes'
+import DiagramasDeDecisionRoutes from './DiagramasDeDecisionRoutes'
+import AdministracionDelCambioRoutes from './AdministracionDelCambioRoutes'
 
 const routes = [
     {
@@ -30,10 +30,10 @@ const routes = [
         component: InSessionLayout,
         meta: { requiresAuth: true },
         children: [
-            //...InSessionRoutes,
+            ...InSessionRoutes,
             ...DefaultRoutes,
             // ...NavBarRoutes,
-            // ...GestionDeProyectosRoutes,
+            ...GestionDeProyectosRoutes,
             ...InventarioRoutes,
             ...ContabilidadRoutes,
             // ...MarketingRoutes,
@@ -48,8 +48,8 @@ const routes = [
             // ...MesaDeControlRoutes,
             // ...FiscalRoutes,
             // ...InversionesRoutes,
-            // ...DiagramasDeDecisionRoutes,
-            // ...AdministracionDelCambioRoutes
+            ...DiagramasDeDecisionRoutes,
+            ...AdministracionDelCambioRoutes
         ]
     },
     {
