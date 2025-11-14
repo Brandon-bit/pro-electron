@@ -60,3 +60,19 @@ export const dateValidator = (message: string, required: boolean = false) => {
         .optional()
         .refine((val) => !val || /^\d{4}-\d{2}-\d{2}$/.test(val), { message })
 }
+
+export const booleanValidator = (message: string) => {
+    return z.boolean({
+        required_error: message,
+        invalid_type_error: 'Valor inválido'
+    })
+}
+
+export const regexValidator = (requiredMessage: string, formatMessage: string, pattern: RegExp) => {
+    return z
+        .string({ required_error: requiredMessage })
+        .min(1, requiredMessage)
+        .regex(pattern, formatMessage)
+}
+
+

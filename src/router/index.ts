@@ -9,7 +9,7 @@ import Login from '@core/OutSessionLayout/views/Login.vue'
 import InventarioRoutes from './InventarioRoutes'
 // import MarketingRoutes from './MarketingRoutes'
 // import PosRoutes from './POSRoutes'
-// import ContabilidadRoutes from './ContabilidadRoutes'
+import ContabilidadRoutes from './ContabilidadRoutes'
 // import ComprasRoutes from './ComprasRoutes'
 // import AdministracionRoutes from './AdministracionRoutes'
 // import FacturacionRoutes from './FacturacionRoutes'
@@ -35,7 +35,7 @@ const routes = [
             // ...NavBarRoutes,
             // ...GestionDeProyectosRoutes,
             ...InventarioRoutes,
-            // ...ContabilidadRoutes,
+            ...ContabilidadRoutes,
             // ...MarketingRoutes,
             // ...ComprasRoutes,
             // ...AdministracionRoutes,

@@ -34,7 +34,7 @@ export default defineConfig({
       '@core': path.resolve(__dirname, './src/core'),
       //MODULES
       // '@defaultModule': path.resolve(__dirname, './src/modules/DefaultModule'),
-      // '@contabilidad': path.resolve(__dirname, './src/modules/Contabilidad'),
+      '@contabilidad': path.resolve(__dirname, './src/modules/Contabilidad'),
       // '@administracion': path.resolve(__dirname, './src/modules/administracion'),
       // '@dashboard': path.resolve(__dirname, './src/modules/dashboard'),
       // '@mantenimiento': path.resolve(__dirname, './src/modules/mantenimiento'),
@@ -43,7 +43,7 @@ export default defineConfig({
       // '@proyectos': path.resolve(__dirname, './src/modules/proyectos'),
       // '@recursosHumanos': path.resolve(__dirname, './src/modules/recursosHumanos'),
       // '@compras': path.resolve(__dirname, './src/modules/compras'),
-      '@inventario': path.resolve(__dirname, './src/modules/inventario'),
+      '@inventario': path.resolve(__dirname, './src/modules/Inventario'),
       // '@pos': path.resolve(__dirname, './src/modules/POS'),
       // '@facturacion': path.resolve(__dirname, './src/modules/facturacion'),
       // '@nomina': path.resolve(__dirname, './src/modules/nomina'),
