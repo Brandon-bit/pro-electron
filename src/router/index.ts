@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import InSessionLayout from '@core/InSessionLayout/views/InSessionLayout.vue'
 import OutSessionLayout from '@core/OutSessionLayout/views/OutSessionLayout.vue'
@@ -65,8 +65,10 @@ const routes = [
     }
 ]
 
+const isElectron = navigator.userAgent.toLowerCase().includes('electron')
+
 const router = createRouter({
-    history: createWebHistory(),
+    history: isElectron ? createWebHashHistory() : createWebHistory(import.meta.env.BASE_URL),
     routes
 })
 
