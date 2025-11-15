@@ -25,6 +25,11 @@ const routes = [
         component: () => import('@/modules/GestionDeProyectos/AltaDeProyectos/views/ProjectRegistrationView.vue')
     },
     {
+        path: '/gestion-de-proyectos/portafolio-de-proyectos',
+        name: 'PortafolioDeProyectos',
+        component: () => import('@/modules/GestionDeProyectos/PortafolioDeProyectos/views/PortafolioDeProyectos.vue')
+    },
+    {
         path: '/gestion-de-proyectos/gantt',
         name: 'Gantt',
         component: () => import('@/modules/GestionDeProyectos/Gantt/views/GanttMatrixView.vue')

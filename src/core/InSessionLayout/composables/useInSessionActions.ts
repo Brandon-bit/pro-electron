@@ -1066,6 +1066,10 @@ export function useInSessionActions() {
                             name: 'Alta de Proyectos'
                         },
                         {
+                            url: '/gestion-de-proyectos/portafolio-de-proyectos',
+                            name: 'Portafolio de Proyectos'
+                        },
+                        {
                             url: '/gestion-de-proyectos/gantt',
                             name: 'Gantt'
                         },
