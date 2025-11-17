@@ -1042,7 +1042,22 @@ export function useInSessionActions() {
             sections: [
                 {
                     icon: '',
-                    name: 'Proyectos',
+                    name: 'Configuración',
+                    open: false,
+                    views: [
+                        {
+                            url: '/gestion-de-proyectos/configuracion/general',
+                            name: 'General'
+                        },
+                        {
+                            url: '/gestion-de-proyectos/configuracion/plantillas',
+                            name: 'Plantillas'
+                        }
+                    ]
+                },
+                {
+                    icon: '',
+                    name: 'Operación',
                     open: false,
                     views: [
                         {
