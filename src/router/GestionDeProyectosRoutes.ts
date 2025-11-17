@@ -5,11 +5,11 @@ const routes = [
         name: 'GeneralConfiguration',
         component: () => import('@/modules/GestionDeProyectos/Configuracion/General/views/GeneralConfigurationView.vue')
     },
-    // {
-    //     path: '/gestion-de-proyectos/configuracion/plantillas',
-    //     name: 'PlantillasConfiguration',
-    //     component: () => import('@/modules/GestionDeProyectos/Configuracion/Plantillas/views/PlantillasConfigurationView.vue')
-    // },
+    {
+        path: '/gestion-de-proyectos/configuracion/plantillas',
+        name: 'PlantillasConfiguration',
+        component: () => import('@/modules/GestionDeProyectos/Configuracion/Plantillas/Views/TemplatesView.vue')
+    },
     {
         path: '/gestion-de-proyectos/analisis-de-iniciativas',
         name: 'AnalisisDeIniciativas',
