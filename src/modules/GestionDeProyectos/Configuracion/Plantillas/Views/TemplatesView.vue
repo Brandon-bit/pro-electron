@@ -4,6 +4,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
 import BaseModal from '@/shared/components/BaseModal.vue'
 import BaseFormInput from '@/shared/components/BaseFormInput.vue'
+import BaseButton from '@/shared/components/BaseButton.vue'
 import { useModalStore } from '@/shared/stores/modal.store'
 import { useTemplateStore } from '../store/templateStore'
 import { useTemplateActions } from '../composables/useTemplateActions'
@@ -489,30 +490,36 @@ const openDeleteTemplateModal = () => {
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button class="btn btn-sm btn-outline" @click="openTemplateModal">
-            <span class="material-symbols-outlined text-sm mr-1">add</span>
-            Agregar plantilla
-          </button>
-          <button 
+          <BaseButton
+            text="Agregar plantilla"
+            icon="add"
+            variant="outline"
+            class-name="btn-sm"
+            @click="openTemplateModal"
+          />
+          <BaseButton
             v-if="activeTemplate"
-            class="btn btn-sm btn-outline" 
+            text="Editar plantilla"
+            icon="edit"
+            variant="outline"
+            class-name="btn-sm"
             @click="openEditTemplateModal"
-          >
-            <span class="material-symbols-outlined text-sm mr-1">edit</span>
-            Editar plantilla
-          </button>
-          <button 
+          />
+          <BaseButton
             v-if="activeTemplate"
-            class="btn btn-sm btn-error btn-outline" 
+            text="Eliminar plantilla"
+            icon="delete"
+            variant="error btn-outline"
+            class-name="btn-sm"
             @click="openDeleteTemplateModal"
-          >
-            <span class="material-symbols-outlined text-sm mr-1">delete</span>
-            Eliminar plantilla
-          </button>
-          <button class="btn btn-sm btn-primary" @click="addStage">
-            <span class="material-symbols-outlined text-sm mr-1">add</span>
-            Nueva etapa
-          </button>
+          />
+          <BaseButton
+            text="Nueva etapa"
+            icon="add"
+            variant="primary"
+            class-name="btn-sm"
+            @click="addStage"
+          />
         </div>
       </div>
     </section>
@@ -567,20 +574,20 @@ const openDeleteTemplateModal = () => {
               </div>
 
               <div class="flex flex-wrap gap-2">
-                <button
-                  class="btn btn-xs btn-primary"
+                <BaseButton
+                  text="Agregar actividad"
+                  icon="add"
+                  variant="primary"
+                  class-name="btn-xs"
                   @click="addActivity(stage.id)"
-                >
-                  <span class="material-symbols-outlined text-xs mr-1">add</span>
-                  Agregar actividad
-                </button>
-                <button
-                  class="btn btn-xs btn-error btn-outline"
+                />
+                <BaseButton
+                  text="Eliminar etapa"
+                  icon="delete"
+                  variant="error btn-outline"
+                  class-name="btn-xs"
                   @click="openDeleteStageModal(stage.id)"
-                >
-                  <span class="material-symbols-outlined text-xs mr-1">delete</span>
-                  Eliminar etapa
-                </button>
+                />
               </div>
             </header>
 
@@ -641,12 +648,13 @@ const openDeleteTemplateModal = () => {
                   </select>
                 </div>
 
-                <button
-                  class="btn btn-ghost btn-xs btn-error"
+                <BaseButton
+                  text=""
+                  icon="delete"
+                  variant="ghost btn-error"
+                  class-name="btn-xs"
                   @click="openDeleteActivityModal(activity.id)"
-                >
-                  <span class="material-symbols-outlined text-xs">delete</span>
-                </button>
+                />
               </li>
             </ul>
           </div>

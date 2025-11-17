@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
+import BaseButton from '@/shared/components/BaseButton.vue'
 import { useModalStore } from '@/shared/stores/modal.store'
 import useGeneralConfigStore from '@/modules/GestionDeProyectos/Configuracion/General/store/generalConfigStore'
 import { useGeneralConfigActions } from '@/modules/GestionDeProyectos/Configuracion/General/composables/useGeneralConfigActions'
@@ -178,10 +179,13 @@ onMounted(() => {
             {{ totalCategories }} categorías
           </div>
         </div>
-        <button class="btn btn-primary btn-sm gap-2" @click="openCreateAreaModal">
-          <span class="material-symbols-outlined text-sm">add</span>
-          Nueva área
-        </button>
+        <BaseButton
+          text="Nueva área"
+          icon="add"
+          variant="primary"
+          class-name="btn-sm"
+          @click="openCreateAreaModal"
+        />
       </div>
 
       <!-- Grid de cards por área -->
@@ -233,20 +237,20 @@ onMounted(() => {
                   </span>
                 </span>
                 <div class="flex gap-1 ml-2 items-center shrink-0">
-                  <button
-                    class="btn btn-ghost btn-xs px-2"
+                  <BaseButton
+                    text=""
+                    icon="edit"
+                    variant="ghost"
+                    class-name="btn-xs px-2"
                     @click="openEditCategoryModal(area.id, category.id)"
-                    title="Editar categoría"
-                  >
-                    <span class="material-symbols-outlined text-xs">edit</span>
-                  </button>
-                  <button
-                    class="btn btn-ghost btn-[7px] btn-xs text-error"
+                  />
+                  <BaseButton
+                    text=""
+                    icon="delete"
+                    variant="ghost"
+                    class-name="btn-xs text-error"
                     @click="openDeleteCategoryModal(area.id, category.id)"
-                    title="Eliminar categoría"
-                  >
-                    <span class="material-symbols-outlined text-xs">delete</span>
-                  </button>
+                  />
                 </div>
               </li>
               <li
@@ -260,30 +264,29 @@ onMounted(() => {
             <!-- Acción: agregar categoría -->
             <footer class="flex items-center justify-between gap-2 pt-1">
               <div class="flex gap-1">
-                <button
-                  class="btn btn-ghost btn-xs"
+                <BaseButton
+                  text=""
+                  icon="edit_square"
+                  variant="ghost"
+                  class-name="btn-xs"
                   @click="openEditAreaModal(area.id)"
-                  title="Editar área"
-                >
-                  <span class="material-symbols-outlined text-xs mr-1">edit_square</span>
-                </button>
-                <button
-                  class="btn btn-ghost btn-xs text-error"
+                />
+                <BaseButton
+                  text=""
+                  icon="delete"
+                  variant="ghost"
+                  class-name="btn-xs text-error"
                   @click="openDeleteAreaModal(area.id)"
-                  title="Eliminar área"
-                >
-                  <span class="material-symbols-outlined text-xs mr-1">delete</span>
-                </button>
+                />
               </div>
 
-              <button
-                class="btn btn-ghost btn-xs"
+              <BaseButton
+                text="Agregar categoría"
+                icon="add"
+                variant="ghost"
+                class-name="btn-xs"
                 @click="openCreateCategoryModal(area.id)"
-                title="Agregar categoría a esta área"
-              >
-                <span class="material-symbols-outlined text-xs mr-1">add</span>
-                Agregar categoría
-              </button>
+              />
             </footer>
           </div>
         </article>
@@ -299,13 +302,13 @@ onMounted(() => {
             {{ classifications.length }} clasificaciones
           </div>
         </div>
-        <button
-          class="btn btn-primary btn-sm gap-2"
+        <BaseButton
+          text="Nueva clasificación"
+          icon="add"
+          variant="primary"
+          class-name="btn-sm"
           @click="openCreateClassificationModal"
-        >
-          <span class="material-symbols-outlined text-sm">add</span>
-          Nueva clasificación
-        </button>
+        />
       </div>
 
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -333,20 +336,20 @@ onMounted(() => {
                   {{ classification.active ? 'check_circle' : 'pause_circle' }}
                 </span>
                 <div class="flex gap-1">
-                  <button
-                    class="btn btn-ghost btn-xs"
+                  <BaseButton
+                    text=""
+                    icon="edit"
+                    variant="ghost"
+                    class-name="btn-xs"
                     @click="openEditClassificationModal(classification.id)"
-                    title="Editar clasificación"
-                  >
-                    <span class="material-symbols-outlined text-xs">edit</span>
-                  </button>
-                  <button
-                    class="btn btn-ghost btn-xs text-error"
+                  />
+                  <BaseButton
+                    text=""
+                    icon="delete"
+                    variant="ghost"
+                    class-name="btn-xs text-error"
                     @click="openDeleteClassificationModal(classification.id)"
-                    title="Eliminar clasificación"
-                  >
-                    <span class="material-symbols-outlined text-xs">delete</span>
-                  </button>
+                  />
                 </div>
               </div>
             </header>
