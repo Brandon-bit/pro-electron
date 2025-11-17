@@ -1,8 +1,8 @@
 import { h } from 'vue'
 import type { ColumnDef } from '@tanstack/vue-table'
 import type { ProjectEvidenceType } from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/types/evidenceTypes'
-import EvidenceCounter from '@/modules/GestionDeProyectos/MatrizDeEvidencias/components/EvidenceCounter.vue'
-import StatusBadge from '@/modules/GestionDeProyectos/MatrizDeEvidencias/components/StatusBadge.vue'
+import EvidenceCounter from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/components/EvidenceCounter.vue'
+import StatusBadge from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/components/StatusBadge.vue'
 import useEvidenceStore from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/store/evidenceStore'
 import { useRouter } from 'vue-router'
 

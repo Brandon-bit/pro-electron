@@ -2,7 +2,7 @@
 import { onMounted, computed } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
 import BaseTable from '@/shared/components/BaseTable.vue'
-import EvidenceModal from '@/modules/GestionDeProyectos/MatrizDeEvidencias/components/EvidenceModal.vue'
+import EvidenceModal from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/components/EvidenceModal.vue'
 import useEvidenceStore from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/store/evidenceStore'
 import { useEvidenceActions } from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/composables/useEvidenceActions'
 import { useEvidenceTable } from '@/modules/GestionDeProyectos/Operacion/MatrizDeEvidencias/composables/useEvidenceTable'

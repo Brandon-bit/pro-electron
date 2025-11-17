@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, watch, computed } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
-import ProjectSelector from '@/modules/GestionDeProyectos/Costos/components/ProjectSelector.vue'
-import KPICards from '@/modules/GestionDeProyectos/Costos/components/KPICards.vue'
-import CostTable from '@/modules/GestionDeProyectos/Costos/components/CostTable.vue'
+import ProjectSelector from '@/modules/GestionDeProyectos/Operacion/Costos/components/ProjectSelector.vue'
+import KPICards from '@/modules/GestionDeProyectos/Operacion/Costos/components/KPICards.vue'
+import CostTable from '@/modules/GestionDeProyectos/Operacion/Costos/components/CostTable.vue'
 import useCostStore from '@/modules/GestionDeProyectos/Operacion/Costos/store/costStore'
 import { useCostActions } from '@/modules/GestionDeProyectos/Operacion/Costos/composables/useCostActions'
 
