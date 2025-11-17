@@ -32,12 +32,12 @@ const handleGenerateEDT = () => {
             <p class="text-sm font-medium opacity-70">Proyecto de Mayor Prioridad</p>
             <p class="text-lg font-bold text-accent">{{ project.name }}</p>
         </div>
-        <button 
+        <!-- <button 
             class="btn btn-accent"
             @click="handleGenerateEDT"
         >
             <span class="material-symbols-outlined text-sm">arrow_forward</span>
             Generar EDT del Proyecto
-        </button>
+        </button> -->
     </div>
 </template>

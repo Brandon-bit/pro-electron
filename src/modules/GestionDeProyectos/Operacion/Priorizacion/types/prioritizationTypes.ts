@@ -1,37 +1,52 @@
 export type PrioritizedProjectType = {
-    id?: number
-    name: string
-    classification: string
-    strategicAlignment: number
-    roi: string
-    risks: string
-    resources: string
     priority: number
-    creationDate?: Date
+    roi: number
+    risk: 'Bajo' | 'Medio' | 'Alto'
+    resources: number
+    dni: number
+    classification: string
+    name: string
+    investment: 'Bajo' | 'Medio' | 'Alto'
+    scope: 'Bajo' | 'Medio' | 'Alto'
+    timeHorizon: 'Corto' | 'Medio' | 'Largo'
+    savings: 'Bajo' | 'Medio' | 'Alto'
+    benefits: 'Bajo' | 'Medio' | 'Alto'
+    satisfaction: 'Bajo' | 'Medio' | 'Alto'
+    inPrioritization: boolean
     active: boolean
 }
 
 export type PrioritizedProjectResponseType = {
-    id: number
-    nombre: string
-    clasificacion: string
-    alineacionEstrategica: number
-    roi: string
-    riesgos: string
-    recursos: string
     prioridad: number
-    fechaCreacion: Date
+    roi: number
+    riesgo: 'Bajo' | 'Medio' | 'Alto'
+    recursos: number
+    dni: number
+    clasificacion: string
+    nombre: string
+    impactoInversion: 'Bajo' | 'Medio' | 'Alto'
+    impactoAlcance: 'Bajo' | 'Medio' | 'Alto'
+    impactoHorizonteDeTiempo: 'Corto' | 'Medio' | 'Largo'
+    impactoAhorroIngresos: 'Bajo' | 'Medio' | 'Alto'
+    impactoBeneficios: 'Bajo' | 'Medio' | 'Alto'
+    impactoSatisfaccionCliente: 'Bajo' | 'Medio' | 'Alto'
+    enPriorizacion: boolean
     activo: boolean
-    eliminado: boolean
 }
 
-export type PrioritizedProjectFormType = {
-    name: string
-    classification: string
-    strategicAlignment: number
-    roi: string
-    risks: string
-    resources: string
-    priority: number
-    active: boolean
+export type PrioritizedProjectUpdateType = {
+    prioridad: number
+    roi: number
+    riesgo: 'Bajo' | 'Medio' | 'Alto'
+    recursos: number
+    dni: number
+    clasificacion: string
+    nombre: string
+    impactoInversion: 'Bajo' | 'Medio' | 'Alto'
+    impactoAlcance: 'Bajo' | 'Medio' | 'Alto'
+    impactoHorizonteDeTiempo: 'Corto' | 'Medio' | 'Largo'
+    impactoAhorroIngresos: 'Bajo' | 'Medio' | 'Alto'
+    impactoBeneficios: 'Bajo' | 'Medio' | 'Alto'
+    impactoSatisfaccionCliente: 'Bajo' | 'Medio' | 'Alto'
+    activo: boolean
 }

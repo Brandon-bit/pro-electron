@@ -3,9 +3,10 @@ import { ref } from 'vue'
 import type { PrioritizedProjectType } from '@/modules/GestionDeProyectos/Operacion/Priorizacion/types/prioritizationTypes'
 import usePrioritizationStore from '@/modules/GestionDeProyectos/Operacion/Priorizacion/store/prioritizationStore'
 
-defineProps<{
+const props = defineProps<{
     projects: PrioritizedProjectType[]
-    onUpdateField: (id: number, field: keyof PrioritizedProjectType, value: string) => void
+    onUpdateField: (dni: number, field: keyof PrioritizedProjectType, value: any) => void
+    onReorder: () => Promise<void>
 }>()
 
 const prioritizationStore = usePrioritizationStore()
@@ -23,7 +24,11 @@ const handleDragOver = (event: DragEvent, index: number) => {
     draggedIndex.value = index
 }
 
-const handleDragEnd = () => {
+const handleDragEnd = async () => {
+    if (draggedIndex.value !== null) {
+        // Llamar a la función de reordenamiento
+        await props.onReorder()
+    }
     draggedIndex.value = null
 }
 </script>
@@ -37,16 +42,15 @@ const handleDragEnd = () => {
                     <th>Prioridad</th>
                     <th>Proyecto</th>
                     <th>Clasificación</th>
-                    <th>Alineación Estratégica</th>
-                    <th>ROI</th>
+                    <th>ROI (%)</th>
                     <th>Riesgos</th>
-                    <th>Recursos</th>
+                    <th>Recursos (personas)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr
                     v-for="(project, index) in projects"
-                    :key="project.id"
+                    :key="project.dni"
                     draggable="true"
                     @dragstart="handleDragStart(index)"
                     @dragover="handleDragOver($event, index)"
@@ -76,43 +80,41 @@ const handleDragEnd = () => {
                     </td>
                     <td>
                         <div class="flex items-center gap-2">
-                            <div class="flex-1 bg-base-300 rounded-full h-2 max-w-[150px]">
-                                <div 
-                                    class="bg-accent h-2 rounded-full transition-all"
-                                    :style="{ width: `${project.strategicAlignment}%` }"
-                                />
-                            </div>
-                            <span class="text-sm font-medium w-12">
-                                {{ project.strategicAlignment }}%
-                            </span>
+                            <input
+                                type="number"
+                                class="input input-sm input-bordered w-20"
+                                placeholder="0"
+                                min="0"
+                                max="100"
+                                :value="project.roi"
+                                @input="(e) => onUpdateField(project.dni, 'roi', Number((e.target as HTMLInputElement).value))"
+                            />
+                            <span class="text-sm">%</span>
                         </div>
                     </td>
                     <td>
-                        <input
-                            type="text"
-                            class="input input-sm input-bordered w-full max-w-[120px]"
-                            placeholder="Ej: 25%"
-                            :value="project.roi"
-                            @input="(e) => onUpdateField(project.id!, 'roi', (e.target as HTMLInputElement).value)"
-                        />
+                        <select
+                            class="select select-sm select-bordered w-full max-w-[120px]"
+                            :value="project.risk"
+                            @change="(e) => onUpdateField(project.dni, 'risk', (e.target as HTMLSelectElement).value)"
+                        >
+                            <option value="Bajo">Bajo</option>
+                            <option value="Medio">Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
                     </td>
                     <td>
-                        <input
-                            type="text"
-                            class="input input-sm input-bordered w-full max-w-[120px]"
-                            placeholder="Bajo/Medio/Alto"
-                            :value="project.risks"
-                            @input="(e) => onUpdateField(project.id!, 'risks', (e.target as HTMLInputElement).value)"
-                        />
-                    </td>
-                    <td>
-                        <input
-                            type="text"
-                            class="input input-sm input-bordered w-full max-w-[120px]"
-                            placeholder="Cantidad"
-                            :value="project.resources"
-                            @input="(e) => onUpdateField(project.id!, 'resources', (e.target as HTMLInputElement).value)"
-                        />
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="number"
+                                class="input input-sm input-bordered w-20"
+                                placeholder="0"
+                                min="0"
+                                :value="project.resources"
+                                @input="(e) => onUpdateField(project.dni, 'resources', Number((e.target as HTMLInputElement).value))"
+                            />
+                            <span class="text-sm">personas</span>
+                        </div>
                     </td>
                 </tr>
             </tbody>

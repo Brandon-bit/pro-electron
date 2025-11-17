@@ -62,6 +62,9 @@ importers:
       lucide-vue-next:
         specifier: ^0.545.0
         version: 0.545.0(vue@3.5.24(typescript@5.9.3))
+      orgchart:
+        specifier: ^5.0.0
+        version: 5.0.0
       pinia:
         specifier: 3.0.3
         version: 3.0.3(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))
@@ -1542,6 +1545,9 @@ packages:
   domify@1.4.2:
     resolution: {integrity: sha512-m4yreHcUWHBncGVV7U+yQzc12vIlq0jMrtHZ5mW6dQMiL/7skSYNVX9wqKwOtyO9SGCgevrAFEgOCAHmamHTUA==}
 
+  dompurify@2.5.8:
+    resolution: {integrity: sha512-o1vSNgrmYMQObbSSvF/1brBYEQPHhV1+gsmrusO7/GXtp1T9rCS8cXFqVxK/9crT1jA6Ccv+5MTSjBNqr7Sovw==}
+
   dompurify@3.3.0:
     resolution: {integrity: sha512-r+f6MYR1gGN1eJv0TVQbhA7if/U7P87cdPl3HN5rikqaBSBxLiCb/b9O+2eG0cxz0ghyU+mU1QkbsOwERMYlWQ==}
 
@@ -2134,12 +2140,21 @@ packages:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
+  jquery-mockjax@2.6.1:
+    resolution: {integrity: sha512-ZCjH3bgBhTt4dAIFx9PmCH+Ff03KqWanwnMCSC+DCmkjGCBB8+f0UiTFqEhkfD1S7ujCe7AgU6PwnLsd95y6bw==}
+
+  jquery@3.7.1:
+    resolution: {integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==}
+
   js-yaml@4.1.1:
     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
+
+  json-digger@2.0.2:
+    resolution: {integrity: sha512-d8Zq9WXlhfkzlDTgSa5B5C/pmR+NVaUVNtBm3tFVQhwAnlBn8AdNGj5fS7DuD61lA9Enn+Fq1sADYg1vCVXDXw==}
 
   json-schema-traverse@0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
@@ -2170,6 +2185,9 @@ packages:
     resolution: {integrity: sha512-YNKeB7qmx3pxOLcNeoqAv3qTS7KuvVwkFe5AduCawpop3NOkBUtqDToxNc225MlNecxT4kP2Zy3z/y/yvGdXUQ==}
     peerDependencies:
       jspdf: ^2 || ^3
+
+  jspdf@2.5.2:
+    resolution: {integrity: sha512-myeX9c+p7znDWPk0eTrujCzNjT+CXdXyk7YmJq5nD5V7uLLKmSXnlQ/Jn/kuo3X09Op70Apm0rQSnFWyGK8uEQ==}
 
   jspdf@3.0.1:
     resolution: {integrity: sha512-qaGIxqxetdoNnFQQXxTKUD9/Z7AloLaw94fFsOiJMxbfYdBbrBuhWmbzI8TVjrw7s3jBY1PFHofBKMV/wZPapg==}
@@ -2540,6 +2558,9 @@ packages:
   ora@5.4.1:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
     engines: {node: '>=10'}
+
+  orgchart@5.0.0:
+    resolution: {integrity: sha512-FYzOxvcJoC5q2u2xfn4L2CQDtK+d1+zKHCp+CNO0U04hhxmvdmuS/WeC7FPR9aiDI9OizhEqiscVdb8AM/Alxw==}
 
   p-cancelable@2.1.1:
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
@@ -4300,8 +4321,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  base64-arraybuffer@1.0.2:
-    optional: true
+  base64-arraybuffer@1.0.2: {}
 
   base64-js@1.5.1: {}
 
@@ -4581,7 +4601,6 @@ snapshots:
   css-line-break@2.1.0:
     dependencies:
       utrie: 1.0.2
-    optional: true
 
   css-select@5.2.2:
     dependencies:
@@ -4743,6 +4762,9 @@ snapshots:
       domelementtype: 2.3.0
 
   domify@1.4.2: {}
+
+  dompurify@2.5.8:
+    optional: true
 
   dompurify@3.3.0:
     optionalDependencies:
@@ -5280,7 +5302,6 @@ snapshots:
     dependencies:
       css-line-break: 2.1.0
       text-segmentation: 1.0.3
-    optional: true
 
   http-cache-semantics@4.2.0: {}
 
@@ -5414,11 +5435,17 @@ snapshots:
 
   jiti@2.6.1: {}
 
+  jquery-mockjax@2.6.1: {}
+
+  jquery@3.7.1: {}
+
   js-yaml@4.1.1:
     dependencies:
       argparse: 2.0.1
 
   json-buffer@3.0.1: {}
+
+  json-digger@2.0.2: {}
 
   json-schema-traverse@0.4.1: {}
 
@@ -5458,6 +5485,18 @@ snapshots:
   jspdf-autotable@5.0.2(jspdf@3.0.1):
     dependencies:
       jspdf: 3.0.1
+
+  jspdf@2.5.2:
+    dependencies:
+      '@babel/runtime': 7.28.4
+      atob: 2.1.2
+      btoa: 1.2.1
+      fflate: 0.8.2
+    optionalDependencies:
+      canvg: 3.0.11
+      core-js: 3.46.0
+      dompurify: 2.5.8
+      html2canvas: 1.4.1
 
   jspdf@3.0.1:
     dependencies:
@@ -5823,6 +5862,14 @@ snapshots:
       log-symbols: 4.1.0
       strip-ansi: 6.0.1
       wcwidth: 1.0.1
+
+  orgchart@5.0.0:
+    dependencies:
+      html2canvas: 1.4.1
+      jquery: 3.7.1
+      jquery-mockjax: 2.6.1
+      json-digger: 2.0.2
+      jspdf: 2.5.2
 
   p-cancelable@2.1.1: {}
 
@@ -6247,7 +6294,6 @@ snapshots:
   text-segmentation@1.0.3:
     dependencies:
       utrie: 1.0.2
-    optional: true
 
   tiny-svg@2.2.4: {}
 
@@ -6318,7 +6364,6 @@ snapshots:
   utrie@1.0.2:
     dependencies:
       base64-arraybuffer: 1.0.2
-    optional: true
 
   v-calendar@3.1.2(@popperjs/core@2.11.8)(vue@3.5.24(typescript@5.9.3)):
     dependencies:

@@ -1,34 +1,44 @@
 import type { 
     PrioritizedProjectResponseType,
-    PrioritizedProjectFormType, 
-    PrioritizedProjectType 
+    PrioritizedProjectType,
+    PrioritizedProjectUpdateType
 } from '@/modules/GestionDeProyectos/Operacion/Priorizacion/types/prioritizationTypes'
 
 export const mapPrioritizedProject = (model: PrioritizedProjectResponseType): PrioritizedProjectType => {
     return {
-        id: model.id,
-        name: model.nombre,
-        classification: model.clasificacion,
-        strategicAlignment: model.alineacionEstrategica,
-        roi: model.roi,
-        risks: model.riesgos,
-        resources: model.recursos,
         priority: model.prioridad,
-        creationDate: model.fechaCreacion,
+        roi: model.roi,
+        risk: model.riesgo,
+        resources: model.recursos,
+        dni: model.dni,
+        classification: model.clasificacion,
+        name: model.nombre,
+        investment: model.impactoInversion,
+        scope: model.impactoAlcance,
+        timeHorizon: model.impactoHorizonteDeTiempo,
+        savings: model.impactoAhorroIngresos,
+        benefits: model.impactoBeneficios,
+        satisfaction: model.impactoSatisfaccionCliente,
+        inPrioritization: model.enPriorizacion,
         active: model.activo
     }
 }
 
-export const mapPrioritizedProjectRequest = (model: PrioritizedProjectFormType): any => {
+export const mapPrioritizedProjectUpdateRequest = (model: PrioritizedProjectType): PrioritizedProjectUpdateType => {
     return {
-        Nombre: model.name,
-        Clasificacion: model.classification,
-        AlineacionEstrategica: model.strategicAlignment,
-        Roi: model.roi,
-        Riesgos: model.risks,
-        Recursos: model.resources,
-        Prioridad: model.priority,
-        Activo: model.active,
-        Eliminado: false
+        prioridad: model.priority,
+        roi: model.roi,
+        riesgo: model.risk,
+        recursos: model.resources,
+        dni: model.dni,
+        clasificacion: model.classification,
+        nombre: model.name,
+        impactoInversion: model.investment,
+        impactoAlcance: model.scope,
+        impactoHorizonteDeTiempo: model.timeHorizon,
+        impactoAhorroIngresos: model.savings,
+        impactoBeneficios: model.benefits,
+        impactoSatisfaccionCliente: model.satisfaction,
+        activo: model.active
     }
 }
