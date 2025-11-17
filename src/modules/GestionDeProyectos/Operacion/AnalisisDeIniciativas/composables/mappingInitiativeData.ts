@@ -6,35 +6,61 @@ import type {
 
 export const mapInitiative = (model: InitiativeResponseType): InitiativeType => {
     return {
-        id: model.id,
+        dni: model.dni,
         classification: model.clasificacion,
         name: model.nombre,
-        investment: model.inversion,
-        scope: model.alcance,
-        timeHorizon: model.horizonteTiempo,
-        savings: model.ahorro,
-        benefits: model.beneficios,
-        satisfaction: model.satisfaccion,
-        selected: model.seleccionado,
-        effortScore: model.puntajeEsfuerzo,
-        impactScore: model.puntajeImpacto,
-        strategicAlignment: model.alineacionEstrategica,
-        creationDate: model.fechaCreacion,
+        investment: model.impactoInversion,
+        scope: model.impactoAlcance,
+        timeHorizon: model.impactoHorizonteDeTiempo,
+        savings: model.impactoAhorroIngresos,
+        benefits: model.impactoBeneficios,
+        satisfaction: model.impactoSatisfaccionCliente,
+        inPrioritization: model.enPriorizacion,
         active: model.activo
     }
 }
 
 export const mapInitiativeRequest = (model: InitiativeFormType): any => {
     return {
-        Clasificacion: model.classification,
-        Nombre: model.name,
-        Inversion: model.investment,
-        Alcance: model.scope,
-        HorizonteTiempo: model.timeHorizon,
-        Ahorro: model.savings,
-        Beneficios: model.benefits,
-        Satisfaccion: model.satisfaction,
-        Activo: model.active,
-        Eliminado: false
+        clasificacion: model.classification,
+        nombre: model.name,
+        impactoInversion: model.investment,
+        impactoAlcance: model.scope,
+        impactoHorizonteDeTiempo: model.timeHorizon,
+        impactoAhorroIngresos: model.savings,
+        impactoBeneficios: model.benefits,
+        impactoSatisfaccionCliente: model.satisfaction,
+        activo: model.active
+    }
+}
+
+export const mapInitiativeUpdateRequest = (model: InitiativeType): any => {
+    return {
+        dni: model.dni,
+        clasificacion: model.classification,
+        nombre: model.name,
+        impactoInversion: model.investment,
+        impactoAlcance: model.scope,
+        impactoHorizonteDeTiempo: model.timeHorizon,
+        impactoAhorroIngresos: model.savings,
+        impactoBeneficios: model.benefits,
+        impactoSatisfaccionCliente: model.satisfaction,
+        enPriorizacion: model.inPrioritization,
+        activo: model.active
+    }
+}
+
+export const mapPrioritizationRequest = (model: InitiativeType): any => {
+    return {
+        dni: model.dni,
+        clasificacion: model.classification,
+        nombre: model.name,
+        impactoInversion: model.investment,
+        impactoAlcance: model.scope,
+        impactoHorizonteDeTiempo: model.timeHorizon,
+        impactoAhorroIngresos: model.savings,
+        impactoBeneficios: model.benefits,
+        impactoSatisfaccionCliente: model.satisfaction,
+        activo: model.active
     }
 }

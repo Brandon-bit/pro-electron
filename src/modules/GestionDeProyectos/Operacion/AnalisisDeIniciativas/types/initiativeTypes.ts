@@ -1,5 +1,5 @@
 export type InitiativeType = {
-    id?: number
+    dni?: number
     classification: string
     name: string
     investment: 'Bajo' | 'Medio' | 'Alto'
@@ -8,31 +8,25 @@ export type InitiativeType = {
     savings: 'Bajo' | 'Medio' | 'Alto'
     benefits: 'Bajo' | 'Medio' | 'Alto'
     satisfaction: 'Bajo' | 'Medio' | 'Alto'
-    selected: boolean
-    effortScore: number
-    impactScore: number
-    strategicAlignment: number
-    creationDate?: Date
+    inPrioritization: boolean
+    effortScore?: number
+    impactScore?: number
+    strategicAlignment?: number
     active: boolean
 }
 
 export type InitiativeResponseType = {
-    id: number
+    dni: number
     clasificacion: string
     nombre: string
-    inversion: 'Bajo' | 'Medio' | 'Alto'
-    alcance: 'Bajo' | 'Medio' | 'Alto'
-    horizonteTiempo: 'Corto' | 'Medio' | 'Largo'
-    ahorro: 'Bajo' | 'Medio' | 'Alto'
-    beneficios: 'Bajo' | 'Medio' | 'Alto'
-    satisfaccion: 'Bajo' | 'Medio' | 'Alto'
-    seleccionado: boolean
-    puntajeEsfuerzo: number
-    puntajeImpacto: number
-    alineacionEstrategica: number
-    fechaCreacion: Date
+    impactoInversion: 'Bajo' | 'Medio' | 'Alto'
+    impactoAlcance: 'Bajo' | 'Medio' | 'Alto'
+    impactoHorizonteDeTiempo: 'Corto' | 'Medio' | 'Largo'
+    impactoAhorroIngresos: 'Bajo' | 'Medio' | 'Alto'
+    impactoBeneficios: 'Bajo' | 'Medio' | 'Alto'
+    impactoSatisfaccionCliente: 'Bajo' | 'Medio' | 'Alto'
+    enPriorizacion: boolean
     activo: boolean
-    eliminado: boolean
 }
 
 export type InitiativeFormType = {
@@ -48,14 +42,29 @@ export type InitiativeFormType = {
 }
 
 export type MatrixCriteriaType = {
-    effort: {
-        investment: number
-        scope: number
-        timeHorizon: number
-    }
-    impact: {
-        savings: number
-        benefits: number
-        satisfaction: number
-    }
+    alcance: number
+    inversion: number
+    horizonteDeTiempo: number
+    ahorroIngresos: number
+    beneficios: number
+    satisfaccionAlCliente: number
+}
+
+export type CriteriaResponseType = {
+    criteriosExisten: boolean
+    alcance: number
+    inversion: number
+    horizonteDeTiempo: number
+    ahorroIngresos: number
+    beneficios: number
+    satisfaccionAlCliente: number
+}
+
+export type CriteriaRequestType = {
+    alcance: number
+    inversion: number
+    horizonteDeTiempo: number
+    ahorroIngresos: number
+    beneficios: number
+    satisfaccionAlCliente: number
 }

@@ -5,73 +5,30 @@ import ConfigurationTab from '@/modules/GestionDeProyectos/Operacion/AnalisisDeI
 import EvaluationTab from '@/modules/GestionDeProyectos/Operacion/AnalisisDeIniciativas/components/EvaluationTab.vue'
 import InitiativeModal from '@/modules/GestionDeProyectos/Operacion/AnalisisDeIniciativas/components/InitiativeModal.vue'
 import { useInitiativeActions } from '@/modules/GestionDeProyectos/Operacion/AnalisisDeIniciativas/composables/useInitiativeActions'
-import type { InitiativeType } from '@/modules/GestionDeProyectos/Operacion/AnalisisDeIniciativas/types/initiativeTypes'
 
-const { getInitiatives, toggleSelection, calculateEffortScore, calculateImpactScore, calculateStrategicAlignment } = useInitiativeActions()
+const { getCriteria } = useInitiativeActions()
 
 const activeTab = ref('evaluation')
-const initiatives = ref<InitiativeType[]>([])
 const loading = ref(false)
+const refreshKey = ref(0)
 
-const fetchInitiatives = async () => {
+const loadCriteria = async () => {
     loading.value = true
     try {
-        const response = await getInitiatives(1, 100)
-        // Calcular scores para cada iniciativa
-        initiatives.value = response.items.map(init => {
-            const effortScore = calculateEffortScore(init)
-            const impactScore = calculateImpactScore(init)
-            const strategicAlignment = calculateStrategicAlignment(effortScore, impactScore)
-            
-            return {
-                ...init,
-                effortScore,
-                impactScore,
-                strategicAlignment
-            }
-        })
+        await getCriteria()
     } catch (error) {
-        console.error('Error fetching initiatives:', error)
-        // Datos de ejemplo para desarrollo
-        initiatives.value = [
-            {
-                id: 1,
-                classification: 'Estratégico',
-                name: 'Sistema CRM',
-                investment: 'Alto',
-                scope: 'Medio',
-                timeHorizon: 'Largo',
-                savings: 'Alto',
-                benefits: 'Alto',
-                satisfaction: 'Alto',
-                selected: false,
-                effortScore: 6.5,
-                impactScore: 8.2,
-                strategicAlignment: 85,
-                active: true
-            }
-        ]
+        console.error('Error loading criteria:', error)
     } finally {
         loading.value = false
     }
 }
 
-const handleToggleSelection = async (id: number) => {
-    const initiative = initiatives.value.find(init => init.id === id)
-    if (initiative) {
-        initiative.selected = !initiative.selected
-        try {
-            await toggleSelection(id, initiative.selected)
-        } catch (error) {
-            console.error('Error toggling selection:', error)
-            // Revertir en caso de error
-            initiative.selected = !initiative.selected
-        }
-    }
+const handleRefresh = () => {
+    refreshKey.value++
 }
 
 onMounted(() => {
-    fetchInitiatives()
+    loadCriteria()
 })
 </script>
 
@@ -113,13 +70,12 @@ onMounted(() => {
             <ConfigurationTab v-if="activeTab === 'configuration'" />
             <EvaluationTab 
                 v-if="activeTab === 'evaluation'"
-                :initiatives="initiatives"
-                :onToggleSelection="handleToggleSelection"
-                :onRefresh="fetchInitiatives"
+                :key="refreshKey"
+                :onRefresh="handleRefresh"
             />
         </div>
 
-        <InitiativeModal :onRefresh="fetchInitiatives" />
+        <InitiativeModal :onRefresh="handleRefresh" />
     </div>
 </template>
 

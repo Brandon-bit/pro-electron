@@ -73,17 +73,36 @@ const modalMap = {
 }
 
 const currentModalComponent = computed(() => {
-    const modalType = modalStore.modals[initiativeStore.modalId]?.type
-    return modalMap[modalType]?.component
+    const modalType = modalStore.modals[initiativeStore.modalId]?.type as keyof typeof modalMap | undefined
+    return modalType ? modalMap[modalType]?.component : undefined
 })
 
 const onSubmit = handleSubmit(async (formValues) => {
-    const modalType = modalStore.modals[initiativeStore.modalId]?.type
+    const modalType = modalStore.modals[initiativeStore.modalId]?.type as keyof typeof modalMap | undefined
+    if (!modalType) return
     const action = modalMap[modalType]?.action
     try {
         const { message, status } = await action(formValues)
         showNotification(message, status)
-        if (status == "success") props.onRefresh?.()
+        if (status == "success") {
+            props.onRefresh?.()
+            // Limpiar formulario después de crear
+            if (modalType === 'CREATE') {
+                resetForm({
+                    values: {
+                        classification: '',
+                        name: '',
+                        investment: 'Medio',
+                        scope: 'Medio',
+                        timeHorizon: 'Medio',
+                        savings: 'Medio',
+                        benefits: 'Medio',
+                        satisfaction: 'Medio',
+                        active: true
+                    }
+                })
+            }
+        }
         modalStore.close(initiativeStore.modalId)
     } catch (error) {
         console.error(error)
@@ -91,7 +110,19 @@ const onSubmit = handleSubmit(async (formValues) => {
 })
 
 const onClose = () => {
-    resetForm()
+    resetForm({
+        values: {
+            classification: '',
+            name: '',
+            investment: 'Medio',
+            scope: 'Medio',
+            timeHorizon: 'Medio',
+            savings: 'Medio',
+            benefits: 'Medio',
+            satisfaction: 'Medio',
+            active: true
+        }
+    })
     initiativeStore.setData()
 }
 </script>
