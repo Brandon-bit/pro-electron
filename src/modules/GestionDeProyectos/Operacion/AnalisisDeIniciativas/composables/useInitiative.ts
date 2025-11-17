@@ -26,10 +26,6 @@ const useInitiative = () => {
                 }
             },
             {
-                header: 'DNI',
-                accessorKey: 'dni'
-            },
-            {
                 header: 'Clasificación',
                 accessorKey: 'classification',
                 cell: ({ row }: any) => {
