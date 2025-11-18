@@ -10,29 +10,6 @@ import type {
     SelectedSubActividadType
 } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
-const initialEtapa: SelectedEtapaType = {
-    dni: 0,
-    nombre: '',
-    psn: 0,
-    activo: true
-}
-
-const initialActividad: SelectedActividadType = {
-    dni: 0,
-    dniEtapa: 0,
-    nombre: '',
-    psn: 0,
-    dias: 1,
-    activo: true
-}
-
-const initialSubActividad: SelectedSubActividadType = {
-    dni: 0,
-    dniActividad: 0,
-    nombre: '',
-    activo: true
-}
-
 const useEDTStore = defineStore('edt-store', {
     state: () => ({
         // Iniciativas
@@ -101,8 +78,8 @@ const useEDTStore = defineStore('edt-store', {
         // ============================================
         // ETAPAS
         // ============================================
-        setEtapa(etapa: SelectedEtapaType = initialEtapa) {
-            this.selectedEtapa = etapa
+        setEtapa(etapa?: SelectedEtapaType) {
+            this.selectedEtapa = etapa || null
         },
         
         clearEtapa() {
@@ -187,8 +164,8 @@ const useEDTStore = defineStore('edt-store', {
         // ============================================
         // ACTIVIDADES
         // ============================================
-        setActividad(actividad: SelectedActividadType = initialActividad) {
-            this.selectedActividad = actividad
+        setActividad(actividad?: SelectedActividadType) {
+            this.selectedActividad = actividad || null
         },
         
         clearActividad() {
@@ -275,8 +252,8 @@ const useEDTStore = defineStore('edt-store', {
         // ============================================
         // SUB-ACTIVIDADES
         // ============================================
-        setSubActividad(subActividad: SelectedSubActividadType = initialSubActividad) {
-            this.selectedSubActividad = subActividad
+        setSubActividad(subActividad?: SelectedSubActividadType) {
+            this.selectedSubActividad = subActividad || null
         },
         
         clearSubActividad() {

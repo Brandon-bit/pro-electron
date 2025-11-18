@@ -29,7 +29,7 @@ const isChecked = ref(value)
                 {{ isChecked ? 'Activo' : 'Inactivo' }}
             </span>
         </div>
-        <span v-if="errorMessage" class="text-sm text-red-500">
+        <span v-if="errorMessage && meta.touched" class="text-sm text-red-500">
             {{ errorMessage }}
         </span>
     </div>

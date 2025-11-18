@@ -20,7 +20,7 @@ const { handleSubmit, isSubmitting, resetForm, setValues } = useForm({
     validateOnMount: false,
     initialValues: {
         nombre: '',
-        psn: 0,
+        psn: 1,
         activo: true
     }
 })
@@ -35,7 +35,7 @@ watch(
                 activo: etapa.activo
             })
         } else {
-            resetForm({ values: { nombre: '', psn: 0, activo: true } })
+            resetForm({ values: { nombre: '', psn: 1, activo: true } })
         }
     },
     { immediate: true }
