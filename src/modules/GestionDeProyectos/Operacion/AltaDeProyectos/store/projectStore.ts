@@ -48,7 +48,16 @@ const mockUsers = {
     admins: [
         { id: '9', name: 'Roberto Gómez' },
         { id: '10', name: 'Carmen Ruiz' },
-        { id: '11', name: 'Francisco Díaz' }
+        { id: '11', name: 'Francisco Díaz' },
+        { id: '12', name: 'Aracely García' },
+        { id: '13', name: 'Alicia Carrillo' },
+        { id: '14', name: 'Jorge Sánchez' },
+        { id: '15', name: 'Raúl War' },
+        { id: '16', name: 'David Favela' },
+        { id: '17', name: 'María López' },
+        { id: '18', name: 'Carlos Mendoza' },
+        { id: '19', name: 'Ana Torres' },
+        { id: '20', name: 'Luis Ramírez' }
     ]
 }
 
