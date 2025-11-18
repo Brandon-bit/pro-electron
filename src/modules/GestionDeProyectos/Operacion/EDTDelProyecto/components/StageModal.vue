@@ -40,6 +40,17 @@ watch(
     { immediate: true }
 )
 
+// Watch modal status to reset form when opening in CREATE mode
+watch(
+    () => modalStore.modals[edtStore.stageModalId]?.status,
+    (isOpen) => {
+        if (isOpen && !edtStore.selectedStage) {
+            // Modal opened in CREATE mode - reset form
+            resetForm({ values: { name: '', psn: 1, active: true } })
+        }
+    }
+)
+
 const modalMap = {
     CREATE: {
         component: AddEditStageForm,

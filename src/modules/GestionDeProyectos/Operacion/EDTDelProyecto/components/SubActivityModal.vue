@@ -38,6 +38,17 @@ watch(
     { immediate: true }
 )
 
+// Watch modal status to reset form when opening in CREATE mode
+watch(
+    () => modalStore.modals[edtStore.subactivityModalId]?.status,
+    (isOpen) => {
+        if (isOpen && !edtStore.selectedSubActivity) {
+            // Modal opened in CREATE mode - reset form
+            resetForm({ values: { name: '', active: true } })
+        }
+    }
+)
+
 const modalMap = {
     CREATE: {
         component: AddEditSubActivityForm,
