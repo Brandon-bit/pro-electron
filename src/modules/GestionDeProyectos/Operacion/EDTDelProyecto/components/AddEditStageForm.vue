@@ -5,9 +5,9 @@ import BaseFormCheckbox from '@/shared/components/BaseFormCheckbox.vue'
 
 <template>
     <BaseFormInput
-        name="nombre"
+        name="name"
         type="text"
-        label="Nombre de la Actividad"
+        label="Nombre de la Etapa"
         :required="true"
     />
     <BaseFormInput
@@ -16,11 +16,5 @@ import BaseFormCheckbox from '@/shared/components/BaseFormCheckbox.vue'
         label="PSN (Número de Secuencia de Prioridad)"
         :required="true"
     />
-    <BaseFormInput
-        name="dias"
-        type="number"
-        label="Días de Duración"
-        :required="true"
-    />
-    <BaseFormCheckbox name="activo" label="Activo" class="mt-4" />
+    <BaseFormCheckbox name="active" label="Activo" class="mt-4" />
 </template>

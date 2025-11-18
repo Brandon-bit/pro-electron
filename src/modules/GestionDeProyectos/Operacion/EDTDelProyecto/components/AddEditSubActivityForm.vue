@@ -5,10 +5,10 @@ import BaseFormCheckbox from '@/shared/components/BaseFormCheckbox.vue'
 
 <template>
     <BaseFormInput
-        name="nombre"
+        name="name"
         type="text"
         label="Nombre de la Sub-actividad"
         :required="true"
     />
-    <BaseFormCheckbox name="activo" label="Activo" class="mt-4" />
+    <BaseFormCheckbox name="active" label="Activo" class="mt-4" />
 </template>

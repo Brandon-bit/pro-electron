@@ -3,131 +3,99 @@ import { stringValidator } from '@/shared/validations/globalValidation'
 import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/store/edtStore'
 
 // ============================================
-// ETAPA SCHEMA
+// STAGE SCHEMA
 // ============================================
-export const etapaSchema = z.object({
-    nombre: stringValidator('El nombre es obligatorio', 'El nombre debe tener al menos 3 caracteres', 3),
+export const stageSchema = z.object({
+    name: stringValidator('El nombre es obligatorio', 'El nombre debe tener al menos 3 caracteres', 3),
     psn: z.number({ required_error: 'El PSN es obligatorio' })
         .min(1, 'El PSN debe ser mayor a 0'),
-    activo: z.boolean().default(true),
+    active: z.boolean().default(true),
 }).superRefine((data, ctx) => {
     const edtStore = useEDTStore()
     
-    // Solo validar duplicados si hay datos EDT cargados
-    if (!edtStore.edtRawData?.etapas) {
-        console.log('Validación PSN Etapa: No hay datos EDT cargados')
-        return
-    }
-    
-    console.log('Validación PSN Etapa: Verificando PSN', data.psn, 'contra etapas:', edtStore.edtRawData.etapas.map(e => ({ dni: e.dni, psn: e.psn, nombre: e.nombre })))
-    
-    // Verificar si el PSN ya existe en otra etapa
+    // Only validate duplicateds if there is EDT data loaded
+    if (!edtStore.edtRawData?.etapas) return
+        
+    // Check if the PSN already exists in another stage
     const psnExists = edtStore.edtRawData.etapas.some(etapa => {
-        // Si estamos editando, excluir la etapa actual de la validación
-        if (edtStore.selectedEtapa && etapa.dni === edtStore.selectedEtapa.dni) {
-            console.log('Validación PSN Etapa: Excluyendo etapa actual (edición):', etapa.dni)
-            return false
-        }
+        // If we are editing, exclude the stage currently being edited from the validation
+        if (edtStore.selectedStage && etapa.dni === edtStore.selectedStage.dni) return false
         const matches = etapa.psn === data.psn
-        if (matches) {
-            console.log('Validación PSN Etapa: PSN DUPLICADO encontrado en etapa:', etapa.nombre, 'dni:', etapa.dni)
-        }
         return matches
     })
     
     if (psnExists) {
-        console.log('Validación PSN Etapa: ERROR - PSN duplicado')
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'El PSN ya existe en otra etapa',
             path: ['psn']
         })
-    } else {
-        console.log('Validación PSN Etapa: OK - PSN único')
     }
 })
 
 // ============================================
-// ACTIVIDAD SCHEMA
+// ACTIVITY SCHEMA
 // ============================================
-export const actividadSchema = z.object({
-    nombre: stringValidator('El nombre es obligatorio', 'El nombre debe tener al menos 3 caracteres', 3),
+export const activitySchema = z.object({
+    name: stringValidator('El nombre es obligatorio', 'El nombre debe tener al menos 3 caracteres', 3),
     psn: z.number({ required_error: 'El PSN es obligatorio' })
         .min(1, 'El PSN debe ser mayor a 0'),
-    dias: z.number({ required_error: 'Los días son obligatorios' })
+    days: z.number({ required_error: 'Los días son obligatorios' })
         .min(1, 'Los días deben ser mayor a 0'),
-    activo: z.boolean().default(true),
+    active: z.boolean().default(true),
 }).superRefine((data, ctx) => {
     const edtStore = useEDTStore()
     
-    // Solo validar duplicados si hay datos EDT cargados
-    if (!edtStore.edtRawData?.etapas) {
-        console.log('Validación PSN Actividad: No hay datos EDT cargados')
-        return
-    }
+    // Only validate duplicateds if there is EDT data loaded
+    if (!edtStore.edtRawData?.etapas) return
     
-    // Obtener el dni de la etapa padre
-    let dniEtapaPadre: number | null = null
+    // Get the dni from parent stage
+    let dniParentStage: number | null = null
     
-    if (edtStore.selectedActividad) {
+    if (edtStore.selectedActivity) {
         // Modo edición: usar el dniEtapa de la actividad seleccionada
-        dniEtapaPadre = edtStore.selectedActividad.dniEtapa
-        console.log('Validación PSN Actividad: Modo EDICIÓN, dniEtapa:', dniEtapaPadre)
-    } else if (edtStore.parentContext?.type === 'etapa') {
+        dniParentStage = edtStore.selectedActivity.dniStage
+    } else if (edtStore.parentContext?.type === 'stage') {
         // Modo creación: usar el dni del contexto padre
-        dniEtapaPadre = edtStore.parentContext.dni
-        console.log('Validación PSN Actividad: Modo CREACIÓN, dniEtapa:', dniEtapaPadre, 'parentContext:', edtStore.parentContext)
+        dniParentStage = edtStore.parentContext.dni
     }
     
-    if (!dniEtapaPadre) {
-        console.log('Validación PSN Actividad: No se pudo obtener dniEtapaPadre')
+    if (!dniParentStage) {
         return
     }
-    
     // Buscar la etapa padre
-    const etapaPadre = edtStore.edtRawData.etapas.find(e => e.dni === dniEtapaPadre)
-    if (!etapaPadre) {
-        console.log('Validación PSN Actividad: No se encontró la etapa padre con dni:', dniEtapaPadre)
+    const parentStage = edtStore.edtRawData.etapas.find(e => e.dni === dniParentStage)
+
+    if (!parentStage) {
         return
     }
     
-    if (!etapaPadre.actividades) {
-        console.log('Validación PSN Actividad: La etapa no tiene actividades')
+    if (!parentStage.actividades) {
         return
     }
-    
-    console.log('Validación PSN Actividad: Verificando PSN', data.psn, 'contra actividades:', etapaPadre.actividades.map(a => ({ dni: a.dni, psn: a.psn, nombre: a.nombre })))
-    
-    // Verificar si el PSN ya existe en otra actividad de esta etapa
-    const psnExists = etapaPadre.actividades.some(actividad => {
-        // Si estamos editando, excluir la actividad actual de la validación
-        if (edtStore.selectedActividad && actividad.dni === edtStore.selectedActividad.dni) {
-            console.log('Validación PSN Actividad: Excluyendo actividad actual (edición):', actividad.dni)
+    // Check if the psn already exists in other activity from the same stage
+    const psnExists = parentStage.actividades.some(activity => {
+        // If we are editing, exclude the current activity from validation
+        if (edtStore.selectedActivity && activity.dni === edtStore.selectedActivity.dni) {
             return false
         }
-        const matches = actividad.psn === data.psn
-        if (matches) {
-            console.log('Validación PSN Actividad: PSN DUPLICADO encontrado en actividad:', actividad.nombre, 'dni:', actividad.dni)
-        }
+        const matches = activity.psn === data.psn
         return matches
     })
     
     if (psnExists) {
-        console.log('Validación PSN Actividad: ERROR - PSN duplicado')
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'El PSN ya existe en otra actividad de esta etapa',
             path: ['psn']
         })
-    } else {
-        console.log('Validación PSN Actividad: OK - PSN único')
     }
 })
 
 // ============================================
-// SUB-ACTIVIDAD SCHEMA
+// SUB-ACTIVITY SCHEMA
 // ============================================
-export const subActividadSchema = z.object({
-    nombre: stringValidator('El nombre es obligatorio', 'El nombre debe tener al menos 3 caracteres', 3),
-    activo: z.boolean().default(true),
+export const subActivitySchema = z.object({
+    name: stringValidator('El nombre es obligatorio', 'El nombre debe tener al menos 3 caracteres', 3),
+    active: z.boolean().default(true),
 })

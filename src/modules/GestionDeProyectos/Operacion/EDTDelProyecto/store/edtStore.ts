@@ -4,17 +4,17 @@ import { convertirEDTResponseAArbol } from '@/modules/GestionDeProyectos/Operaci
 import type {
     EDTNodeType,
     EDTResponseType,
-    IniciativaOpcionType,
-    SelectedEtapaType,
-    SelectedActividadType,
-    SelectedSubActividadType
+    InitiativeOptionType,
+    SelectedStageType,
+    SelectedActivityType,
+    SelectedSubActivityType
 } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
 const useEDTStore = defineStore('edt-store', {
     state: () => ({
-        // Iniciativas
-        iniciativasOpciones: [] as IniciativaOpcionType[],
-        selectedIniciativa: null as IniciativaOpcionType | null,
+        // Initiatives
+        initiativesOptions: [] as InitiativeOptionType[],
+        selectedInitiative: null as InitiativeOptionType | null,
         
         // EDT Data
         edtRoot: null as EDTNodeType | null,
@@ -25,29 +25,29 @@ const useEDTStore = defineStore('edt-store', {
         error: null as string | null,
         
         // Selected items for modals
-        selectedEtapa: null as SelectedEtapaType | null,
-        selectedActividad: null as SelectedActividadType | null,
-        selectedSubActividad: null as SelectedSubActividadType | null,
+        selectedStage: null as SelectedStageType | null,
+        selectedActivity: null as SelectedActivityType | null,
+        selectedSubActivity: null as SelectedSubActivityType | null,
         
         // Modal IDs
-        etapaModalId: 'etapa-modal',
-        actividadModalId: 'actividad-modal',
-        subactividadModalId: 'subactividad-modal',
+        stageModalId: 'stage-modal',
+        activityModalId: 'activity-modal',
+        subactivityModalId: 'subactivity-modal',
         
         // Parent context for adding new items
-        parentContext: null as { id: string; dni: number; type: 'iniciativa' | 'etapa' | 'actividad' } | null
+        parentContext: null as { id: string; dni: number; type: 'initiative' | 'stage' | 'activity' } | null
     }),
     actions: {
         // ============================================
         // LOAD DATA
         // ============================================
-        async cargarIniciativasOpciones() {
+        async loadInitiativeOptions() {
             try {
                 this.isLoading = true
                 this.error = null
-                const response = await edtService.getIniciativasOpciones()
+                const response = await edtService.getInitiativesOptionsService()
                 if (response.success) {
-                    this.iniciativasOpciones = response.data
+                    this.initiativesOptions = response.data
                 }
             } catch (error: any) {
                 this.error = error.message || 'Error al cargar iniciativas'
@@ -57,15 +57,15 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async cargarEDT(dniIniciativa: number) {
+        async loadEDT(dniInitiative: number) {
             try {
                 this.isLoading = true
                 this.error = null
-                const response = await edtService.getEDT(dniIniciativa)
+                const response = await edtService.getEDTService(dniInitiative)
                 if (response.success) {
                     this.edtRawData = response.data
                     this.edtRoot = convertirEDTResponseAArbol(response.data)
-                    this.selectedIniciativa = this.iniciativasOpciones.find(i => i.dni === dniIniciativa) || null
+                    this.selectedInitiative = this.initiativesOptions.find(i => i.dni === dniInitiative) || null
                 }
             } catch (error: any) {
                 this.error = error.message || 'Error al cargar EDT'
@@ -76,31 +76,31 @@ const useEDTStore = defineStore('edt-store', {
         },
 
         // ============================================
-        // ETAPAS
+        // STAGES
         // ============================================
-        setEtapa(etapa?: SelectedEtapaType) {
-            this.selectedEtapa = etapa || null
+        setStage(stage?: SelectedStageType) {
+            this.selectedStage = stage || null
         },
         
-        clearEtapa() {
-            this.selectedEtapa = null
+        clearStage() {
+            this.selectedStage = null
             this.parentContext = null
         },
 
-        async agregarEtapa(data: { nombre: string; psn: number; activo: boolean }) {
-            if (!this.selectedIniciativa) return false
+        async addStage(data: { name: string; psn: number; active: boolean }) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.agregarEtapa({
-                    dniIniciativa: this.selectedIniciativa.dni,
-                    nombre: data.nombre,
+                const response = await edtService.addStageService({
+                    dniIniciativa: this.selectedInitiative.dni,
+                    nombre: data.name,
                     psn: data.psn,
-                    activo: data.activo
+                    activo: data.active
                 })
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -113,21 +113,21 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async actualizarEtapa(dni: number, data: { nombre: string; psn: number; activo: boolean }) {
-            if (!this.selectedIniciativa) return false
+        async putStage(dni: number, data: { name: string; psn: number; active: boolean }) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.actualizarEtapa({
+                const response = await edtService.putStageService({
                     dni,
-                    dniIniciativa: this.selectedIniciativa.dni,
-                    nombre: data.nombre,
+                    dniIniciativa: this.selectedInitiative.dni,
+                    nombre: data.name,
                     psn: data.psn,
-                    activo: data.activo
+                    activo: data.active
                 })
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -140,15 +140,15 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async eliminarEtapa(dni: number) {
-            if (!this.selectedIniciativa) return false
+        async deleteStage(dni: number) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.eliminarEtapa(dni)
+                const response = await edtService.deleteStageService(dni)
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -162,32 +162,32 @@ const useEDTStore = defineStore('edt-store', {
         },
 
         // ============================================
-        // ACTIVIDADES
+        // ACTIVITIES
         // ============================================
-        setActividad(actividad?: SelectedActividadType) {
-            this.selectedActividad = actividad || null
+        setActivity(activity?: SelectedActivityType) {
+            this.selectedActivity = activity || null
         },
         
-        clearActividad() {
-            this.selectedActividad = null
+        clearActivity() {
+            this.selectedActivity = null
             this.parentContext = null
         },
 
-        async agregarActividad(dniEtapa: number, data: { nombre: string; psn: number; dias: number; activo: boolean }) {
-            if (!this.selectedIniciativa) return false
+        async addActivity(dniStage: number, data: { name: string; psn: number; days: number; active: boolean }) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.agregarActividad({
-                    dniIniciativaEtapa: dniEtapa,
-                    nombre: data.nombre,
+                const response = await edtService.addActivityService({
+                    dniIniciativaEtapa: dniStage,
+                    nombre: data.name,
                     psn: data.psn,
-                    dias: data.dias,
-                    activo: data.activo
+                    dias: data.days,
+                    activo: data.active
                 })
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -200,22 +200,22 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async actualizarActividad(dni: number, dniEtapa: number, data: { nombre: string; psn: number; dias: number; activo: boolean }) {
-            if (!this.selectedIniciativa) return false
+        async putActivity(dni: number, dniStage: number, data: { name: string; psn: number; days: number; active: boolean }) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.actualizarActividad({
+                const response = await edtService.putActivityService({
                     dni,
-                    dniIniciativaEtapa: dniEtapa,
-                    nombre: data.nombre,
+                    dniIniciativaEtapa: dniStage,
+                    nombre: data.name,
                     psn: data.psn,
-                    dias: data.dias,
-                    activo: data.activo
+                    dias: data.days,
+                    activo: data.active
                 })
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -228,15 +228,15 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async eliminarActividad(dni: number) {
-            if (!this.selectedIniciativa) return false
+        async deleteActivity(dni: number) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.eliminarActividad(dni)
+                const response = await edtService.deleteActivityService(dni)
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -250,30 +250,30 @@ const useEDTStore = defineStore('edt-store', {
         },
 
         // ============================================
-        // SUB-ACTIVIDADES
+        // SUB-ACTIVITIES
         // ============================================
-        setSubActividad(subActividad?: SelectedSubActividadType) {
-            this.selectedSubActividad = subActividad || null
+        setSubActivity(subActivity?: SelectedSubActivityType) {
+            this.selectedSubActivity = subActivity || null
         },
         
-        clearSubActividad() {
-            this.selectedSubActividad = null
+        clearSubActivity() {
+            this.selectedSubActivity = null
             this.parentContext = null
         },
 
-        async agregarSubActividad(dniActividad: number, data: { nombre: string; activo: boolean }) {
-            if (!this.selectedIniciativa) return false
+        async addSubActivity(dniActivity: number, data: { name: string; active: boolean }) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.agregarSubActividad({
-                    dniIniciativaActividad: dniActividad,
-                    nombre: data.nombre,
-                    activo: data.activo
+                const response = await edtService.addSubActivityService({
+                    dniIniciativaActividad: dniActivity,
+                    nombre: data.name,
+                    activo: data.active
                 })
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -286,20 +286,20 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async actualizarSubActividad(dni: number, dniActividad: number, data: { nombre: string; activo: boolean }) {
-            if (!this.selectedIniciativa) return false
+        async putSubActivity(dni: number, dniActivity: number, data: { name: string; active: boolean }) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.actualizarSubActividad({
+                const response = await edtService.putSubActivityService({
                     dni,
-                    dniIniciativaActividad: dniActividad,
-                    nombre: data.nombre,
-                    activo: data.activo
+                    dniIniciativaActividad: dniActivity,
+                    nombre: data.name,
+                    activo: data.active
                 })
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false
@@ -312,15 +312,15 @@ const useEDTStore = defineStore('edt-store', {
             }
         },
 
-        async eliminarSubActividad(dni: number) {
-            if (!this.selectedIniciativa) return false
+        async deleteSubActivity(dni: number) {
+            if (!this.selectedInitiative) return false
 
             try {
                 this.isLoading = true
-                const response = await edtService.eliminarSubActividad(dni)
+                const response = await edtService.deleteSubActivityService(dni)
 
                 if (response.success) {
-                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    await this.loadEDT(this.selectedInitiative.dni)
                     return true
                 }
                 return false

@@ -29,108 +29,108 @@ const resolveThemeFromStorage = () => {
 }
 
 // ============================================
-// HANDLERS PARA ETAPAS
+// STAGES HANDLERS
 // ============================================
 
-const handleAddEtapa = () => {
-    edtStore.setEtapa()
-    modalStore.open(edtStore.etapaModalId, { type: 'CREATE', title: 'Agregar Etapa' })
+const handleAddStage = () => {
+    edtStore.setStage()
+    modalStore.open(edtStore.stageModalId, { type: 'CREATE', title: 'Agregar Etapa' })
 }
 
-const handleEditEtapa = (id: string, data: any) => {
+const handleEditStage = (id: string, data: any) => {
     const dni = extractDniFromId(id)
-    edtStore.setEtapa({
+    edtStore.setStage({
         dni,
-        nombre: data.label,
+        name: data.label,
         psn: data.psn || 0,
-        activo: data.activo ?? true
+        active: data.active ?? true
     })
-    modalStore.open(edtStore.etapaModalId, { type: 'EDIT', title: 'Editar Etapa' })
+    modalStore.open(edtStore.stageModalId, { type: 'EDIT', title: 'Editar Etapa' })
 }
 
-const handleDeleteEtapa = (id: string, data: any) => {
+const handleDeleteStage = (id: string, data: any) => {
     const dni = extractDniFromId(id)
-    edtStore.setEtapa({
+    edtStore.setStage({
         dni,
-        nombre: data.label,
+        name: data.label,
         psn: data.psn || 0,
-        activo: data.activo ?? true
+        active: data.active ?? true
     })
-    modalStore.open(edtStore.etapaModalId, { type: 'DELETE', title: 'Eliminar Etapa' })
+    modalStore.open(edtStore.stageModalId, { type: 'DELETE', title: 'Eliminar Etapa' })
 }
 
 // ============================================
-// HANDLERS PARA ACTIVIDADES
+// ACTIVITIES HANDLERS
 // ============================================
 
-const handleAddActividad = (etapaId: string) => {
-    const dniEtapa = extractDniFromId(etapaId)
-    edtStore.setActividad()
-    edtStore.parentContext = { id: etapaId, dni: dniEtapa, type: 'etapa' }
-    modalStore.open(edtStore.actividadModalId, { type: 'CREATE', title: 'Agregar Actividad' })
+const handleAddActivity = (stageId: string) => {
+    const dniStage = extractDniFromId(stageId)
+    edtStore.setActivity()
+    edtStore.parentContext = { id: stageId, dni: dniStage, type: 'stage' }
+    modalStore.open(edtStore.activityModalId, { type: 'CREATE', title: 'Agregar Actividad' })
 }
 
-const handleEditActividad = (id: string, etapaId: string, data: any) => {
+const handleEditActivity = (id: string, stageId: string, data: any) => {
     const dni = extractDniFromId(id)
-    const dniEtapa = extractDniFromId(etapaId)
-    edtStore.setActividad({
+    const dniStage = extractDniFromId(stageId)
+    edtStore.setActivity({
         dni,
-        dniEtapa,
-        nombre: data.label,
+        dniStage,
+        name: data.label,
         psn: data.psn || 0,
-        dias: data.dias || 1,
-        activo: data.activo ?? true
+        days: data.days || 1,
+        active: data.active ?? true
     })
-    modalStore.open(edtStore.actividadModalId, { type: 'EDIT', title: 'Editar Actividad' })
+    modalStore.open(edtStore.activityModalId, { type: 'EDIT', title: 'Editar Actividad' })
 }
 
-const handleDeleteActividad = (id: string, etapaId: string, data: any) => {
+const handleDeleteActivity = (id: string, stageId: string, data: any) => {
     const dni = extractDniFromId(id)
-    const dniEtapa = extractDniFromId(etapaId)
-    edtStore.setActividad({
+    const dniStage = extractDniFromId(stageId)
+    edtStore.setActivity({
         dni,
-        dniEtapa,
-        nombre: data.label,
+        dniStage,
+        name: data.label,
         psn: data.psn || 0,
-        dias: data.dias || 1,
-        activo: data.activo ?? true
+        days: data.days || 1,
+        active: data.active ?? true
     })
-    modalStore.open(edtStore.actividadModalId, { type: 'DELETE', title: 'Eliminar Actividad' })
+    modalStore.open(edtStore.activityModalId, { type: 'DELETE', title: 'Eliminar Actividad' })
 }
 
 // ============================================
-// HANDLERS PARA SUB-ACTIVIDADES
+// SUB-ACTIVITIES HANDLERS
 // ============================================
 
-const handleAddSubActividad = (actividadId: string) => {
-    const dniActividad = extractDniFromId(actividadId)
-    edtStore.setSubActividad()
-    edtStore.parentContext = { id: actividadId, dni: dniActividad, type: 'actividad' }
-    modalStore.open(edtStore.subactividadModalId, { type: 'CREATE', title: 'Agregar Sub-actividad' })
+const handleAddSubActivity = (activityId: string) => {
+    const dniActivity = extractDniFromId(activityId)
+    edtStore.setSubActivity()
+    edtStore.parentContext = { id: activityId, dni: dniActivity, type: 'activity' }
+    modalStore.open(edtStore.subactivityModalId, { type: 'CREATE', title: 'Agregar Sub-actividad' })
 }
 
-const handleEditSubActividad = (id: string, actividadId: string, data: any) => {
+const handleEditSubActivity = (id: string, activityId: string, data: any) => {
     const dni = extractDniFromId(id)
-    const dniActividad = extractDniFromId(actividadId)
-    edtStore.setSubActividad({
+    const dniActivity = extractDniFromId(activityId)
+    edtStore.setSubActivity({
         dni,
-        dniActividad,
-        nombre: data.label,
-        activo: data.activo ?? true
+        dniActivity,
+        name: data.label,
+        active: data.active ?? true
     })
-    modalStore.open(edtStore.subactividadModalId, { type: 'EDIT', title: 'Editar Sub-actividad' })
+    modalStore.open(edtStore.subactivityModalId, { type: 'EDIT', title: 'Editar Sub-actividad' })
 }
 
-const handleDeleteSubActividad = (id: string, actividadId: string, data: any) => {
+const handleDeleteSubActivity = (id: string, activityId: string, data: any) => {
     const dni = extractDniFromId(id)
-    const dniActividad = extractDniFromId(actividadId)
-    edtStore.setSubActividad({
+    const dniActivity = extractDniFromId(activityId)
+    edtStore.setSubActivity({
         dni,
-        dniActividad,
-        nombre: data.label,
-        activo: data.activo ?? true
+        dniActivity,
+        name: data.label,
+        active: data.active ?? true
     })
-    modalStore.open(edtStore.subactividadModalId, { type: 'DELETE', title: 'Eliminar Sub-actividad' })
+    modalStore.open(edtStore.subactivityModalId, { type: 'DELETE', title: 'Eliminar Sub-actividad' })
 }
 
 // Construir nodos y edges de vue-flow a partir del árbol EDT usando un layout jerárquico centrado
@@ -198,8 +198,8 @@ const buildFlowFromEDT = (root: EDTNodeType | null | undefined) => {
                 label: node.name,
                 level: node.level,
                 psn: node.psn,
-                dias: node.dias,
-                activo: node.activo,
+                days: node.days,
+                active: node.active,
                 childrenCount: node.childrenCount || 0,
                 parentId: parentId || null
             },
@@ -308,7 +308,7 @@ watch(
                                 text=""
                                 class-name="btn-root-add btn-xs btn-success"
                                 title="Agregar etapa"
-                                @click.stop="handleAddEtapa"
+                                @click.stop="handleAddStage"
                             />
                         </div>
                     </template>
@@ -329,21 +329,21 @@ watch(
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-secondary"
                                     title="Editar etapa"
-                                    @click.stop="handleEditEtapa(id, data)"
+                                    @click.stop="handleEditStage(id, data)"
                                 />
                                 <BaseButton
                                     icon="delete"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-warning"
                                     title="Eliminar etapa"
-                                    @click.stop="handleDeleteEtapa(id, data)"
+                                    @click.stop="handleDeleteStage(id, data)"
                                 />
                                 <BaseButton
                                     icon="add"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-success"
                                     title="Agregar actividad"
-                                    @click.stop="handleAddActividad(id)"
+                                    @click.stop="handleAddActivity(id)"
                                 />
                             </div>
                         </div>
@@ -366,21 +366,21 @@ watch(
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-secondary"
                                     title="Editar actividad"
-                                    @click.stop="handleEditActividad(id, data.parentId, data)"
+                                    @click.stop="handleEditActivity(id, data.parentId, data)"
                                 />
                                 <BaseButton
                                     icon="delete"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-warning"
                                     title="Eliminar actividad"
-                                    @click.stop="handleDeleteActividad(id, data.parentId, data)"
+                                    @click.stop="handleDeleteActivity(id, data.parentId, data)"
                                 />
                                 <BaseButton
                                     icon="add"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-success"
                                     title="Agregar subactividad"
-                                    @click.stop="handleAddSubActividad(id)"
+                                    @click.stop="handleAddSubActivity(id)"
                                 />
                             </div>
                         </div>
@@ -398,14 +398,14 @@ watch(
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-secondary"
                                     title="Editar subactividad"
-                                    @click.stop="handleEditSubActividad(id, data.parentId, data)"
+                                    @click.stop="handleEditSubActivity(id, data.parentId, data)"
                                 />
                                 <BaseButton
                                     icon="delete"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-warning"
                                     title="Eliminar subactividad"
-                                    @click.stop="handleDeleteSubActividad(id, data.parentId, data)"
+                                    @click.stop="handleDeleteSubActivity(id, data.parentId, data)"
                                 />
                             </div>
                         </div>

@@ -2,34 +2,34 @@
 import { onMounted, computed } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
 import EDTTree from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/EDTTree.vue'
-import EtapaModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/EtapaModal.vue'
-import ActividadModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/ActividadModal.vue'
-import SubActividadModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/SubActividadModal.vue'
+import StageModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/StageModal.vue'
+import ActivityModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/ActivityModal.vue'
+import SubActivityModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/SubActivityModal.vue'
 import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/store/edtStore'
 import { useEDTActions } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/useEDTActions'
 
 const edtStore = useEDTStore()
-const { cargarIniciativas, cargarEDT } = useEDTActions()
+const { loadInitiatives, loadEDT } = useEDTActions()
 
 // Opciones para el selector de iniciativas
-const iniciativasOptions = computed(() => 
-    edtStore.iniciativasOpciones.map(i => ({
+const initiativesOptions = computed(() => 
+    edtStore.initiativesOptions.map(i => ({
         value: i.dni,
         label: i.label
     }))
 )
 
-const selectedIniciativaId = computed({
-    get: () => edtStore.selectedIniciativa?.dni || null,
+const selectedInitiativeId = computed({
+    get: () => edtStore.selectedInitiative?.dni || null,
     set: async (value: number | null) => {
         if (value) {
-            await cargarEDT(value)
+            await loadEDT(value)
         }
     }
 })
 
 onMounted(async () => {
-    await cargarIniciativas()
+    await loadInitiatives()
 })
 </script>
 
@@ -50,13 +50,13 @@ onMounted(async () => {
                         <span class="label-text">Iniciativa</span>
                     </label>
                     <select 
-                        v-model="selectedIniciativaId" 
+                        v-model="selectedInitiativeId" 
                         class="select select-bordered w-full"
                         :disabled="edtStore.isLoading"
                     >
                         <option :value="null">Selecciona una iniciativa...</option>
                         <option 
-                            v-for="option in iniciativasOptions" 
+                            v-for="option in initiativesOptions" 
                             :key="option.value" 
                             :value="option.value"
                         >
@@ -87,12 +87,8 @@ onMounted(async () => {
         <EDTTree v-else />
 
         <!-- Modales -->
-        <EtapaModal />
-        <ActividadModal />
-        <SubActividadModal />
+        <StageModal />
+        <ActivityModal />
+        <SubActivityModal />
     </div>
 </template>
-
-<style scoped>
-/* Estilos adicionales si son necesarios */
-</style>

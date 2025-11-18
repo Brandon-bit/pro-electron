@@ -1,9 +1,9 @@
 import type { 
     EDTResponseType,
     EDTNodeType,
-    EtapaResponseType,
-    ActividadResponseType,
-    SubActividadResponseType
+    StageResponseType,
+    ActivityResponseType,
+    SubActivityResponseType
 } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
 /**
@@ -25,44 +25,44 @@ export const convertirEDTResponseAArbol = (data: EDTResponseType): EDTNodeType =
         level: 0,
         parentId: null,
         children: [],
-        activo: true,
+        active: true,
         childrenCount: data.etapas.length
     }
 
     // Convert etapas (stages)
-    root.children = data.etapas.map((etapa: EtapaResponseType) => {
+    root.children = data.etapas.map((etapa: StageResponseType) => {
         const etapaNode: EDTNodeType = {
             id: `etapa-${etapa.dni}`,
             name: etapa.nombre,
             level: 1,
             parentId: root.id,
             psn: etapa.psn,
-            activo: etapa.activo,
+            active: etapa.activo,
             children: [],
             childrenCount: etapa.actividades.length
         }
 
         // Convert actividades (activities)
-        etapaNode.children = etapa.actividades.map((actividad: ActividadResponseType) => {
+        etapaNode.children = etapa.actividades.map((actividad: ActivityResponseType) => {
             const actividadNode: EDTNodeType = {
                 id: `actividad-${actividad.dni}`,
                 name: actividad.nombre,
                 level: 2,
                 parentId: etapaNode.id,
                 psn: actividad.psn,
-                dias: actividad.dias,
-                activo: actividad.activo,
+                days: actividad.dias,
+                active: actividad.activo,
                 children: [],
                 childrenCount: actividad.subActividades.length
             }
 
             // Convert sub-actividades (sub-activities)
-            actividadNode.children = actividad.subActividades.map((subActividad: SubActividadResponseType) => ({
+            actividadNode.children = actividad.subActividades.map((subActividad: SubActivityResponseType) => ({
                 id: `subactividad-${subActividad.dni}`,
                 name: subActividad.nombre,
                 level: 3,
                 parentId: actividadNode.id,
-                activo: subActividad.activo,
+                active: subActividad.activo,
                 children: [],
                 childrenCount: 0
             }))

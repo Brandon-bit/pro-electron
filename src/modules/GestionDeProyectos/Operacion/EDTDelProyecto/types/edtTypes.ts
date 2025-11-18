@@ -2,31 +2,31 @@
 // API RESPONSE TYPES
 // ============================================
 
-// Sub-Actividad Response
-export type SubActividadResponseType = {
+// Sub-Activity Response
+export type SubActivityResponseType = {
     dni: number
     dniIniciativaActividad: number
     nombre: string
     activo: boolean
 }
 
-// Actividad Response
-export type ActividadResponseType = {
+// Activity Response
+export type ActivityResponseType = {
     dni: number
     dniIniciativaEtapa: number
     nombre: string
-    subActividades: SubActividadResponseType[]
+    subActividades: SubActivityResponseType[]
     psn: number
     dias: number
     activo: boolean
 }
 
-// Etapa Response
-export type EtapaResponseType = {
+// Stage Response
+export type StageResponseType = {
     dni: number
     dniIniciativa: number
     nombre: string
-    actividades: ActividadResponseType[]
+    actividades: ActivityResponseType[]
     psn: number
     activo: boolean
 }
@@ -35,11 +35,11 @@ export type EtapaResponseType = {
 export type EDTResponseType = {
     dniIniciativa: number
     nombre: string
-    etapas: EtapaResponseType[]
+    etapas: StageResponseType[]
 }
 
-// Iniciativa Option
-export type IniciativaOpcionType = {
+// Initiative Option
+export type InitiativeOptionType = {
     dni: number
     label: string
 }
@@ -48,8 +48,8 @@ export type IniciativaOpcionType = {
 // API REQUEST TYPES
 // ============================================
 
-// Etapa Request
-export type EtapaRequestType = {
+// Stage Request
+export type StageRequestType = {
     dni?: number | null
     dniIniciativa: number
     nombre: string
@@ -57,8 +57,8 @@ export type EtapaRequestType = {
     activo: boolean
 }
 
-// Actividad Request
-export type ActividadRequestType = {
+// Activity Request
+export type ActivityRequestType = {
     dni?: number | null
     dniIniciativaEtapa: number
     nombre: string
@@ -67,8 +67,8 @@ export type ActividadRequestType = {
     activo: boolean
 }
 
-// Sub-Actividad Request
-export type SubActividadRequestType = {
+// Sub-Activity Request
+export type SubActivityRequestType = {
     dni?: number | null
     dniIniciativaActividad: number
     nombre: string
@@ -79,22 +79,22 @@ export type SubActividadRequestType = {
 // FORM TYPES (for vee-validate)
 // ============================================
 
-export type EtapaFormType = {
-    nombre: string
+export type StageFormType = {
+    name: string
     psn: number
-    activo: boolean
+    active: boolean
 }
 
-export type ActividadFormType = {
-    nombre: string
+export type ActivityFormType = {
+    name: string
     psn: number
-    dias: number
-    activo: boolean
+    days: number
+    active: boolean
 }
 
-export type SubActividadFormType = {
-    nombre: string
-    activo: boolean
+export type SubActivityFormType = {
+    name: string
+    active: boolean
 }
 
 // ============================================
@@ -108,8 +108,8 @@ export type EDTNodeType = {
     children: EDTNodeType[]
     parentId: string | null
     psn?: number
-    dias?: number
-    activo?: boolean
+    days?: number
+    active?: boolean
     childrenCount?: number
 }
 
@@ -117,25 +117,25 @@ export type EDTNodeType = {
 // STORE TYPES
 // ============================================
 
-export type SelectedEtapaType = {
+export type SelectedStageType = {
     dni: number
-    nombre: string
+    name: string
     psn: number
-    activo: boolean
+    active: boolean
 }
 
-export type SelectedActividadType = {
+export type SelectedActivityType = {
     dni: number
-    dniEtapa: number
-    nombre: string
+    dniStage: number
+    name: string
     psn: number
-    dias: number
-    activo: boolean
+    days: number
+    active: boolean
 }
 
-export type SelectedSubActividadType = {
+export type SelectedSubActivityType = {
     dni: number
-    dniActividad: number
-    nombre: string
-    activo: boolean
+    dniActivity: number
+    name: string
+    active: boolean
 }

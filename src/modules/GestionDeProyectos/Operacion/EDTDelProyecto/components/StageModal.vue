@@ -6,36 +6,35 @@ import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/s
 import { useEDTActions } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/useEDTActions'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { etapaSchema } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/validations/edtValidation'
-import AddEtapaForm from './AddEtapaForm.vue'
-import EditEtapaForm from './EditEtapaForm.vue'
-import DeleteEtapa from './DeleteEtapa.vue'
+import { stageSchema } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/validations/edtValidation'
+import AddEditStageForm from './AddEditStageForm.vue'
+import DeleteStage from './DeleteStage.vue'
 
 const modalStore = useModalStore()
 const edtStore = useEDTStore()
-const { crearEtapa, actualizarEtapa, eliminarEtapa } = useEDTActions()
+const { createStage, updateStage, deleteStage } = useEDTActions()
 
 const { handleSubmit, isSubmitting, resetForm, setValues } = useForm({
-    validationSchema: toTypedSchema(etapaSchema),
+    validationSchema: toTypedSchema(stageSchema),
     validateOnMount: false,
     initialValues: {
-        nombre: '',
+        name: '',
         psn: 1,
-        activo: true
+        active: true
     }
 })
 
 watch(
-    () => edtStore.selectedEtapa,
-    (etapa) => {
-        if (etapa) {
+    () => edtStore.selectedStage,
+    (stage) => {
+        if (stage) {
             setValues({
-                nombre: etapa.nombre,
-                psn: etapa.psn,
-                activo: etapa.activo
+                name: stage.name,
+                psn: stage.psn,
+                active: stage.active
             })
         } else {
-            resetForm({ values: { nombre: '', psn: 1, activo: true } })
+            resetForm({ values: { name: '', psn: 1, active: true } })
         }
     },
     { immediate: true }
@@ -43,34 +42,34 @@ watch(
 
 const modalMap = {
     CREATE: {
-        component: AddEtapaForm,
-        action: crearEtapa
+        component: AddEditStageForm,
+        action: createStage
     },
     EDIT: {
-        component: EditEtapaForm,
-        action: actualizarEtapa
+        component: AddEditStageForm,
+        action: updateStage
     },
     DELETE: {
-        component: DeleteEtapa,
-        action: eliminarEtapa
+        component: DeleteStage,
+        action: deleteStage
     }
 }
 
 const currentModalComponent = computed(() => {
-    const modalType = modalStore.modals[edtStore.etapaModalId]?.type
+    const modalType = modalStore.modals[edtStore.stageModalId]?.type
     return modalMap[modalType as keyof typeof modalMap]?.component
 })
 
 const onSubmit = async () => {
-    const modalType = modalStore.modals[edtStore.etapaModalId]?.type
+    const modalType = modalStore.modals[edtStore.stageModalId]?.type
 
     // For CREATE and EDIT, use handleSubmit with validation
     if (modalType === 'CREATE') {
         await handleSubmit(async (formValues) => {
-            const success = await crearEtapa(formValues)
+            const success = await createStage(formValues)
             if (success) {
-                edtStore.clearEtapa()
-                modalStore.close(edtStore.etapaModalId)
+                edtStore.clearStage()
+                modalStore.close(edtStore.stageModalId)
             }
         })()
         return
@@ -78,11 +77,11 @@ const onSubmit = async () => {
 
     if (modalType === 'EDIT') {
         await handleSubmit(async (formValues) => {
-            if (!edtStore.selectedEtapa) return
-            const success = await actualizarEtapa(`etapa-${edtStore.selectedEtapa.dni}`, formValues)
+            if (!edtStore.selectedStage) return
+            const success = await updateStage(`etapa-${edtStore.selectedStage.dni}`, formValues)
             if (success) {
-                edtStore.clearEtapa()
-                modalStore.close(edtStore.etapaModalId)
+                edtStore.clearStage()
+                modalStore.close(edtStore.stageModalId)
             }
         })()
         return
@@ -90,25 +89,25 @@ const onSubmit = async () => {
 
     // For DELETE, no form validation needed
     if (modalType === 'DELETE') {
-        if (!edtStore.selectedEtapa) return
-        const success = await eliminarEtapa(`etapa-${edtStore.selectedEtapa.dni}`)
+        if (!edtStore.selectedStage) return
+        const success = await deleteStage(`etapa-${edtStore.selectedStage.dni}`)
         if (success) {
-            edtStore.clearEtapa()
-            modalStore.close(edtStore.etapaModalId)
+            edtStore.clearStage()
+            modalStore.close(edtStore.stageModalId)
         }
     }
 }
 
 const onClose = () => {
     resetForm()
-    edtStore.clearEtapa()
+    edtStore.clearStage()
 }
 </script>
 
 <template>
     <BaseModal
         :onSubmit="onSubmit"
-        :modalId="edtStore.etapaModalId"
+        :modalId="edtStore.stageModalId"
         :isSubmitting="isSubmitting"
         :onClose="onClose"
     >

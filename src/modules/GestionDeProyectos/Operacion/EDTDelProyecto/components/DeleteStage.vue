@@ -6,10 +6,10 @@ const edtStore = useEDTStore()
 
 <template>
     <p class="text-center">
-        ¿Estás seguro de que deseas eliminar la actividad
-        <span class="!font-semibold"> "{{ edtStore.selectedActividad?.nombre }}" ? </span>
+        ¿Estás seguro de que deseas eliminar la etapa
+        <span class="!font-semibold"> "{{ edtStore.selectedStage?.name }}" ? </span>
     </p>
     <p class="text-center text-xs opacity-70 mt-2">
-        Esta acción también eliminará todas las sub-actividades asociadas.
+        Esta acción también eliminará todas las actividades y sub-actividades asociadas.
     </p>
 </template>

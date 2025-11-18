@@ -2,9 +2,9 @@ import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/s
 import { showNotification } from '@/utils/toastNotifications'
 import { extractDniFromId } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/mappingEDTData'
 import type {
-    EtapaFormType,
-    ActividadFormType,
-    SubActividadFormType
+    StageFormType,
+    ActivityFormType,
+    SubActivityFormType
 } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
 export const useEDTActions = () => {
@@ -13,18 +13,18 @@ export const useEDTActions = () => {
     // ============================================
     // LOAD DATA
     // ============================================
-    const cargarIniciativas = async () => {
+    const loadInitiatives = async () => {
         try {
-            await edtStore.cargarIniciativasOpciones()
+            await edtStore.loadInitiativeOptions()
         } catch (error) {
             console.error('Error al cargar iniciativas:', error)
             showNotification('Error al cargar las iniciativas', 'error')
         }
     }
 
-    const cargarEDT = async (dniIniciativa: number) => {
+    const loadEDT = async (dniInitiative: number) => {
         try {
-            await edtStore.cargarEDT(dniIniciativa)
+            await edtStore.loadEDT(dniInitiative)
         } catch (error) {
             console.error('Error al cargar EDT:', error)
             showNotification('Error al cargar el EDT', 'error')
@@ -34,9 +34,9 @@ export const useEDTActions = () => {
     // ============================================
     // ETAPAS
     // ============================================
-    const crearEtapa = async (form: EtapaFormType): Promise<boolean> => {
+    const createStage = async (form: StageFormType): Promise<boolean> => {
         try {
-            const success = await edtStore.agregarEtapa(form)
+            const success = await edtStore.addStage(form)
             if (success) {
                 showNotification('Etapa creada exitosamente', 'success')
                 return true
@@ -50,10 +50,10 @@ export const useEDTActions = () => {
         }
     }
 
-    const actualizarEtapa = async (id: string, form: EtapaFormType): Promise<boolean> => {
+    const updateStage = async (id: string, form: StageFormType): Promise<boolean> => {
         try {
             const dni = extractDniFromId(id)
-            const success = await edtStore.actualizarEtapa(dni, form)
+            const success = await edtStore.putStage(dni, form)
             if (success) {
                 showNotification('Etapa actualizada exitosamente', 'success')
                 return true
@@ -67,10 +67,10 @@ export const useEDTActions = () => {
         }
     }
 
-    const eliminarEtapa = async (id: string): Promise<boolean> => {
+    const deleteStage = async (id: string): Promise<boolean> => {
         try {
             const dni = extractDniFromId(id)
-            const success = await edtStore.eliminarEtapa(dni)
+            const success = await edtStore.deleteStage(dni)
             if (success) {
                 showNotification('Etapa eliminada exitosamente', 'success')
                 return true
@@ -85,11 +85,11 @@ export const useEDTActions = () => {
     }
 
     // ============================================
-    // ACTIVIDADES
+    // ACTIVITIES
     // ============================================
-    const crearActividad = async (dniEtapa: number, form: ActividadFormType): Promise<boolean> => {
+    const createActivity = async (dniStage: number, form: ActivityFormType): Promise<boolean> => {
         try {
-            const success = await edtStore.agregarActividad(dniEtapa, form)
+            const success = await edtStore.addActivity(dniStage, form)
             if (success) {
                 showNotification('Actividad creada exitosamente', 'success')
                 return true
@@ -103,10 +103,10 @@ export const useEDTActions = () => {
         }
     }
 
-    const actualizarActividad = async (id: string, dniEtapa: number, form: ActividadFormType): Promise<boolean> => {
+    const updateActivity = async (id: string, dniEtapa: number, form: ActivityFormType): Promise<boolean> => {
         try {
             const dni = extractDniFromId(id)
-            const success = await edtStore.actualizarActividad(dni, dniEtapa, form)
+            const success = await edtStore.putActivity(dni, dniEtapa, form)
             if (success) {
                 showNotification('Actividad actualizada exitosamente', 'success')
                 return true
@@ -120,10 +120,10 @@ export const useEDTActions = () => {
         }
     }
 
-    const eliminarActividad = async (id: string): Promise<boolean> => {
+    const deleteActivity = async (id: string): Promise<boolean> => {
         try {
             const dni = extractDniFromId(id)
-            const success = await edtStore.eliminarActividad(dni)
+            const success = await edtStore.deleteActivity(dni)
             if (success) {
                 showNotification('Actividad eliminada exitosamente', 'success')
                 return true
@@ -138,11 +138,11 @@ export const useEDTActions = () => {
     }
 
     // ============================================
-    // SUB-ACTIVIDADES
+    // SUB-ACTIVITIES
     // ============================================
-    const crearSubActividad = async (dniActividad: number, form: SubActividadFormType): Promise<boolean> => {
+    const createSubActivity = async (dniActivity: number, form: SubActivityFormType): Promise<boolean> => {
         try {
-            const success = await edtStore.agregarSubActividad(dniActividad, form)
+            const success = await edtStore.addSubActivity(dniActivity, form)
             if (success) {
                 showNotification('Sub-actividad creada exitosamente', 'success')
                 return true
@@ -156,10 +156,10 @@ export const useEDTActions = () => {
         }
     }
 
-    const actualizarSubActividad = async (id: string, dniActividad: number, form: SubActividadFormType): Promise<boolean> => {
+    const updateSubActivity = async (id: string, dniActivity: number, form: SubActivityFormType): Promise<boolean> => {
         try {
             const dni = extractDniFromId(id)
-            const success = await edtStore.actualizarSubActividad(dni, dniActividad, form)
+            const success = await edtStore.putSubActivity(dni, dniActivity, form)
             if (success) {
                 showNotification('Sub-actividad actualizada exitosamente', 'success')
                 return true
@@ -173,10 +173,10 @@ export const useEDTActions = () => {
         }
     }
 
-    const eliminarSubActividad = async (id: string): Promise<boolean> => {
+    const deleteSubActivity = async (id: string): Promise<boolean> => {
         try {
             const dni = extractDniFromId(id)
-            const success = await edtStore.eliminarSubActividad(dni)
+            const success = await edtStore.deleteSubActivity(dni)
             if (success) {
                 showNotification('Sub-actividad eliminada exitosamente', 'success')
                 return true
@@ -191,16 +191,16 @@ export const useEDTActions = () => {
     }
 
     return {
-        cargarIniciativas,
-        cargarEDT,
-        crearEtapa,
-        actualizarEtapa,
-        eliminarEtapa,
-        crearActividad,
-        actualizarActividad,
-        eliminarActividad,
-        crearSubActividad,
-        actualizarSubActividad,
-        eliminarSubActividad
+        loadInitiatives,
+        loadEDT,
+        createStage,
+        updateStage,
+        deleteStage,
+        createActivity,
+        updateActivity,
+        deleteActivity,
+        createSubActivity,
+        updateSubActivity,
+        deleteSubActivity
     }
 }
