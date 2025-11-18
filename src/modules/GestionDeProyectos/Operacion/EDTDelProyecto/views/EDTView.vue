@@ -1,55 +1,95 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
-import ProjectSelector from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/ProjectSelector.vue'
-import EmptyState from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/EmptyState.vue'
 import EDTTree from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/EDTTree.vue'
+import EtapaModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/EtapaModal.vue'
+import ActividadModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/ActividadModal.vue'
+import SubActividadModal from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/components/SubActividadModal.vue'
 import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/store/edtStore'
 import { useEDTActions } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/useEDTActions'
-import { showNotification } from '@/utils/toastNotifications'
 
 const edtStore = useEDTStore()
-const { generateGantt } = useEDTActions()
+const { cargarIniciativas, cargarEDT } = useEDTActions()
 
-const handleGenerateGantt = () => {
-    const result = generateGantt()
-    if (result.success) {
-        showNotification(result.message, 'success')
-    } else {
-        showNotification(result.message, 'error')
+// Opciones para el selector de iniciativas
+const iniciativasOptions = computed(() => 
+    edtStore.iniciativasOpciones.map(i => ({
+        value: i.dni,
+        label: i.label
+    }))
+)
+
+const selectedIniciativaId = computed({
+    get: () => edtStore.selectedIniciativa?.dni || null,
+    set: async (value: number | null) => {
+        if (value) {
+            await cargarEDT(value)
+        }
     }
-}
+})
 
-onMounted(() => {
-    edtStore.loadFromLocalStorage()
+onMounted(async () => {
+    await cargarIniciativas()
 })
 </script>
 
 <template>
     <div class="space-y-6">
         <!-- Header -->
-        <div class="flex items-center justify-between flex-wrap gap-4">
-            <BaseTitle 
-                title="EDT - Estructura de Desglose del Trabajo" 
-                subtitle="Construye la estructura jerárquica del proyecto y genera el Diagrama de Gantt"
-            />
-            
-            <BaseButton 
-                v-if="edtStore.edtRoot"
-                text="Generar Gantt"
-                @click="handleGenerateGantt"
-                icon="calendar_month"
-                class="btn-accent btn-lg"
-            />
+        <BaseTitle 
+            title="EDT - Estructura de Desglose del Trabajo" 
+            subtitle="Construye la estructura jerárquica de la iniciativa"
+        />
+
+        <!-- Selector de iniciativa -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h3 class="card-title text-lg mb-4">Seleccionar Iniciativa</h3>
+                <div class="form-control w-full max-w-md">
+                    <label class="label">
+                        <span class="label-text">Iniciativa</span>
+                    </label>
+                    <select 
+                        v-model="selectedIniciativaId" 
+                        class="select select-bordered w-full"
+                        :disabled="edtStore.isLoading"
+                    >
+                        <option :value="null">Selecciona una iniciativa...</option>
+                        <option 
+                            v-for="option in iniciativasOptions" 
+                            :key="option.value" 
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
 
-        <!-- Selector de proyecto -->
-        <ProjectSelector />
+        <!-- Loading state -->
+        <div v-if="edtStore.isLoading" class="flex items-center justify-center py-12">
+            <span class="loading loading-spinner loading-lg"></span>
+        </div>
 
         <!-- Árbol EDT o estado vacío -->
-        <EmptyState v-if="!edtStore.edtRoot" />
+        <div v-else-if="!edtStore.edtRoot" class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <span class="material-symbols-outlined text-6xl opacity-30 mb-4">account_tree</span>
+                    <h3 class="text-xl font-semibold mb-2">No hay EDT disponible</h3>
+                    <p class="text-sm opacity-70">
+                        Selecciona una iniciativa para visualizar su estructura EDT
+                    </p>
+                </div>
+            </div>
+        </div>
         <EDTTree v-else />
+
+        <!-- Modales -->
+        <EtapaModal />
+        <ActividadModal />
+        <SubActividadModal />
     </div>
 </template>
 

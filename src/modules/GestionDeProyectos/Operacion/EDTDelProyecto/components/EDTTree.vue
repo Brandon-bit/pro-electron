@@ -7,10 +7,13 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
 import BaseButton from '@/shared/components/BaseButton.vue'
+import { useModalStore } from '@/shared/stores/modal.store'
 import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/store/edtStore'
+import { extractDniFromId } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/mappingEDTData'
 import type { EDTNodeType } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
 const edtStore = useEDTStore()
+const modalStore = useModalStore()
 
 const flowNodes = ref<Node[]>([])
 const flowEdges = ref<Edge[]>([])
@@ -25,33 +28,109 @@ const resolveThemeFromStorage = () => {
     isDarkMode.value = appTheme === 'business'
 }
 
-const addStageFromRoot = () => {
-    if (!edtStore.edtRoot) return
-    edtStore.addChildNode(edtStore.edtRoot)
+// ============================================
+// HANDLERS PARA ETAPAS
+// ============================================
+
+const handleAddEtapa = () => {
+    edtStore.setEtapa()
+    modalStore.open(edtStore.etapaModalId, { type: 'CREATE', title: 'Agregar Etapa' })
 }
 
-const findNodeById = (node: EDTNodeType | null, id: string): EDTNodeType | null => {
-    if (!node) return null
-    if (node.id === id) return node
-    for (const child of node.children) {
-        const found = findNodeById(child, id)
-        if (found) return found
-    }
-    return null
+const handleEditEtapa = (id: string, data: any) => {
+    const dni = extractDniFromId(id)
+    edtStore.setEtapa({
+        dni,
+        nombre: data.label,
+        psn: data.psn || 0,
+        activo: data.activo ?? true
+    })
+    modalStore.open(edtStore.etapaModalId, { type: 'EDIT', title: 'Editar Etapa' })
 }
 
-const handleAddActivity = (stageId: string) => {
-    const stageNode = findNodeById(edtStore.edtRoot, stageId)
-    if (!stageNode) return
-    edtStore.addChildNode(stageNode)
+const handleDeleteEtapa = (id: string, data: any) => {
+    const dni = extractDniFromId(id)
+    edtStore.setEtapa({
+        dni,
+        nombre: data.label,
+        psn: data.psn || 0,
+        activo: data.activo ?? true
+    })
+    modalStore.open(edtStore.etapaModalId, { type: 'DELETE', title: 'Eliminar Etapa' })
 }
 
-const handleDeleteStage = (stageId: string) => {
-    edtStore.deleteNode(stageId)
+// ============================================
+// HANDLERS PARA ACTIVIDADES
+// ============================================
+
+const handleAddActividad = (etapaId: string) => {
+    const dniEtapa = extractDniFromId(etapaId)
+    edtStore.setActividad()
+    edtStore.parentContext = { id: etapaId, dni: dniEtapa, type: 'etapa' }
+    modalStore.open(edtStore.actividadModalId, { type: 'CREATE', title: 'Agregar Actividad' })
 }
 
-const handleEditStage = (stageId: string, stageName: string) => {
-    edtStore.startEditing(stageId, stageName)
+const handleEditActividad = (id: string, etapaId: string, data: any) => {
+    const dni = extractDniFromId(id)
+    const dniEtapa = extractDniFromId(etapaId)
+    edtStore.setActividad({
+        dni,
+        dniEtapa,
+        nombre: data.label,
+        psn: data.psn || 0,
+        dias: data.dias || 1,
+        activo: data.activo ?? true
+    })
+    modalStore.open(edtStore.actividadModalId, { type: 'EDIT', title: 'Editar Actividad' })
+}
+
+const handleDeleteActividad = (id: string, etapaId: string, data: any) => {
+    const dni = extractDniFromId(id)
+    const dniEtapa = extractDniFromId(etapaId)
+    edtStore.setActividad({
+        dni,
+        dniEtapa,
+        nombre: data.label,
+        psn: data.psn || 0,
+        dias: data.dias || 1,
+        activo: data.activo ?? true
+    })
+    modalStore.open(edtStore.actividadModalId, { type: 'DELETE', title: 'Eliminar Actividad' })
+}
+
+// ============================================
+// HANDLERS PARA SUB-ACTIVIDADES
+// ============================================
+
+const handleAddSubActividad = (actividadId: string) => {
+    const dniActividad = extractDniFromId(actividadId)
+    edtStore.setSubActividad()
+    edtStore.parentContext = { id: actividadId, dni: dniActividad, type: 'actividad' }
+    modalStore.open(edtStore.subactividadModalId, { type: 'CREATE', title: 'Agregar Sub-actividad' })
+}
+
+const handleEditSubActividad = (id: string, actividadId: string, data: any) => {
+    const dni = extractDniFromId(id)
+    const dniActividad = extractDniFromId(actividadId)
+    edtStore.setSubActividad({
+        dni,
+        dniActividad,
+        nombre: data.label,
+        activo: data.activo ?? true
+    })
+    modalStore.open(edtStore.subactividadModalId, { type: 'EDIT', title: 'Editar Sub-actividad' })
+}
+
+const handleDeleteSubActividad = (id: string, actividadId: string, data: any) => {
+    const dni = extractDniFromId(id)
+    const dniActividad = extractDniFromId(actividadId)
+    edtStore.setSubActividad({
+        dni,
+        dniActividad,
+        nombre: data.label,
+        activo: data.activo ?? true
+    })
+    modalStore.open(edtStore.subactividadModalId, { type: 'DELETE', title: 'Eliminar Sub-actividad' })
 }
 
 // Construir nodos y edges de vue-flow a partir del árbol EDT usando un layout jerárquico centrado
@@ -117,7 +196,12 @@ const buildFlowFromEDT = (root: EDTNodeType | null | undefined) => {
             },
             data: {
                 label: node.name,
-                level: node.level
+                level: node.level,
+                psn: node.psn,
+                dias: node.dias,
+                activo: node.activo,
+                childrenCount: node.childrenCount || 0,
+                parentId: parentId || null
             },
             // El nodo raíz usa un tipo personalizado con botón flotante
             // Etapas (nivel 1), actividades (nivel 2) y subactividades (nivel 3) usan tipos personalizados con acciones
@@ -213,15 +297,18 @@ watch(
                     <template #node-rootNode="{ data }">
                         <div class="vue-flow__node level-proyecto node-root">
                             <div class="node-root-content">
-                                <div class="node-root-title">PROYECTO</div>
+                                <div class="node-root-title">INICIATIVA</div>
                                 <div class="node-root-name">{{ data.label }}</div>
+                                <div v-if="data.childrenCount !== undefined" class="node-info">
+                                    <span class="badge badge-sm badge-ghost">{{ data.childrenCount }} etapas</span>
+                                </div>
                             </div>
                             <BaseButton
                                 icon="add"
                                 text=""
                                 class-name="btn-root-add btn-xs btn-success"
                                 title="Agregar etapa"
-                                @click.stop="addStageFromRoot"
+                                @click.stop="handleAddEtapa"
                             />
                         </div>
                     </template>
@@ -230,7 +317,11 @@ watch(
                     <template #node-stageNode="{ id, data }">
                         <div class="vue-flow__node level-etapa node-stage">
                             <div class="node-stage-content">
-                                <span class="node-stage-name">{{ data.label }}</span>
+                                <div class="node-stage-name">{{ data.label }}</div>
+                                <div class="node-info-row">
+                                    <span v-if="data.psn !== undefined" class="badge badge-xs badge-ghost">PSN: {{ data.psn }}</span>
+                                    <span v-if="data.childrenCount !== undefined" class="badge badge-xs badge-ghost">{{ data.childrenCount }} actividades</span>
+                                </div>
                             </div>
                             <div class="stage-actions">
                                 <BaseButton
@@ -238,21 +329,21 @@ watch(
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-secondary"
                                     title="Editar etapa"
-                                    @click.stop="handleEditStage(id, data.label)"
+                                    @click.stop="handleEditEtapa(id, data)"
                                 />
                                 <BaseButton
                                     icon="delete"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-warning"
                                     title="Eliminar etapa"
-                                    @click.stop="handleDeleteStage(id)"
+                                    @click.stop="handleDeleteEtapa(id, data)"
                                 />
                                 <BaseButton
                                     icon="add"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-success"
                                     title="Agregar actividad"
-                                    @click.stop="handleAddActivity(id)"
+                                    @click.stop="handleAddActividad(id)"
                                 />
                             </div>
                         </div>
@@ -262,7 +353,12 @@ watch(
                     <template #node-activityNode="{ id, data }">
                         <div class="vue-flow__node level-actividad node-stage">
                             <div class="node-stage-content">
-                                <span class="node-stage-name">{{ data.label }}</span>
+                                <div class="node-stage-name">{{ data.label }}</div>
+                                <div class="node-info-row">
+                                    <span v-if="data.psn !== undefined" class="badge badge-xs badge-ghost">PSN: {{ data.psn }}</span>
+                                    <span v-if="data.dias !== undefined" class="badge badge-xs badge-ghost">{{ data.dias }} días</span>
+                                    <span v-if="data.childrenCount !== undefined" class="badge badge-xs badge-ghost">{{ data.childrenCount }} sub-act.</span>
+                                </div>
                             </div>
                             <div class="stage-actions">
                                 <BaseButton
@@ -270,21 +366,21 @@ watch(
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-secondary"
                                     title="Editar actividad"
-                                    @click.stop="handleEditStage(id, data.label)"
+                                    @click.stop="handleEditActividad(id, data.parentId, data)"
                                 />
                                 <BaseButton
                                     icon="delete"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-warning"
                                     title="Eliminar actividad"
-                                    @click.stop="handleDeleteStage(id)"
+                                    @click.stop="handleDeleteActividad(id, data.parentId, data)"
                                 />
                                 <BaseButton
                                     icon="add"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-success"
                                     title="Agregar subactividad"
-                                    @click.stop="handleAddActivity(id)"
+                                    @click.stop="handleAddSubActividad(id)"
                                 />
                             </div>
                         </div>
@@ -294,7 +390,7 @@ watch(
                     <template #node-subactivityNode="{ id, data }">
                         <div class="vue-flow__node level-subactividad node-stage">
                             <div class="node-stage-content">
-                                <span class="node-stage-name">{{ data.label }}</span>
+                                <div class="node-stage-name">{{ data.label }}</div>
                             </div>
                             <div class="stage-actions">
                                 <BaseButton
@@ -302,14 +398,14 @@ watch(
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-secondary"
                                     title="Editar subactividad"
-                                    @click.stop="handleEditStage(id, data.label)"
+                                    @click.stop="handleEditSubActividad(id, data.parentId, data)"
                                 />
                                 <BaseButton
                                     icon="delete"
                                     text=""
                                     class-name="btn-stage-action btn-xs btn-warning"
                                     title="Eliminar subactividad"
-                                    @click.stop="handleDeleteStage(id)"
+                                    @click.stop="handleDeleteSubActividad(id, data.parentId, data)"
                                 />
                             </div>
                         </div>
@@ -424,6 +520,13 @@ watch(
     font-size: 14px;
 }
 
+.node-info {
+    margin-top: 4px;
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
 .btn-root-add {
     position: absolute;
     right: -8px;  /* ligeramente fuera del borde derecho */
@@ -444,7 +547,21 @@ watch(
 
 .node-stage-content {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.node-stage-name {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.node-info-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
     justify-content: center;
 }
 

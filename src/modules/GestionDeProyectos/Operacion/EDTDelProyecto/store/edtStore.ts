@@ -1,228 +1,358 @@
 import { defineStore } from 'pinia'
-import type { EDTNodeType, ProjectDataType } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
+import { edtService } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/services/edtService'
+import { convertirEDTResponseAArbol } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/mappingEDTData'
+import type {
+    EDTNodeType,
+    EDTResponseType,
+    IniciativaOpcionType,
+    SelectedEtapaType,
+    SelectedActividadType,
+    SelectedSubActividadType
+} from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
-// Proyecto de ejemplo para desarrollo
-const mockProject: ProjectDataType = {
-    id: 1,
-    name: 'Sistema CRM Empresarial',
-    classification: 'Estratégico'
+const initialEtapa: SelectedEtapaType = {
+    dni: 0,
+    nombre: '',
+    psn: 0,
+    activo: true
 }
 
-// Árbol EDT de ejemplo
-const mockEDTTree: EDTNodeType = {
-    id: 'root',
-    name: 'Sistema CRM Empresarial',
-    level: 0,
-    parentId: null,
-    children: [
-        {
-            id: 'node-1',
-            name: 'Análisis y Diseño',
-            level: 1,
-            parentId: 'root',
-            children: [
-                {
-                    id: 'node-1-1',
-                    name: 'Levantamiento de Requerimientos',
-                    level: 2,
-                    parentId: 'node-1',
-                    children: [
-                        {
-                            id: 'node-1-1-1',
-                            name: 'Entrevistas con Stakeholders',
-                            level: 3,
-                            parentId: 'node-1-1',
-                            children: []
-                        },
-                        {
-                            id: 'node-1-1-2',
-                            name: 'Documentación de Procesos',
-                            level: 3,
-                            parentId: 'node-1-1',
-                            children: []
-                        }
-                    ]
-                },
-                {
-                    id: 'node-1-2',
-                    name: 'Diseño de Arquitectura',
-                    level: 2,
-                    parentId: 'node-1',
-                    children: []
-                }
-            ]
-        },
-        {
-            id: 'node-2',
-            name: 'Desarrollo',
-            level: 1,
-            parentId: 'root',
-            children: [
-                {
-                    id: 'node-2-1',
-                    name: 'Backend',
-                    level: 2,
-                    parentId: 'node-2',
-                    children: [
-                        {
-                            id: 'node-2-1-1',
-                            name: 'API REST',
-                            level: 3,
-                            parentId: 'node-2-1',
-                            children: []
-                        },
-                        {
-                            id: 'node-2-1-2',
-                            name: 'Base de Datos',
-                            level: 3,
-                            parentId: 'node-2-1',
-                            children: []
-                        }
-                    ]
-                },
-                {
-                    id: 'node-2-2',
-                    name: 'Frontend',
-                    level: 2,
-                    parentId: 'node-2',
-                    children: [
-                        {
-                            id: 'node-2-2-1',
-                            name: 'Interfaz de Usuario',
-                            level: 3,
-                            parentId: 'node-2-2',
-                            children: []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            id: 'node-3',
-            name: 'Pruebas y Despliegue',
-            level: 1,
-            parentId: 'root',
-            children: [
-                {
-                    id: 'node-3-1',
-                    name: 'Pruebas Unitarias',
-                    level: 2,
-                    parentId: 'node-3',
-                    children: []
-                },
-                {
-                    id: 'node-3-2',
-                    name: 'Pruebas de Integración',
-                    level: 2,
-                    parentId: 'node-3',
-                    children: []
-                },
-                {
-                    id: 'node-3-3',
-                    name: 'Despliegue en Producción',
-                    level: 2,
-                    parentId: 'node-3',
-                    children: []
-                }
-            ]
-        }
-    ]
+const initialActividad: SelectedActividadType = {
+    dni: 0,
+    dniEtapa: 0,
+    nombre: '',
+    psn: 0,
+    dias: 1,
+    activo: true
+}
+
+const initialSubActividad: SelectedSubActividadType = {
+    dni: 0,
+    dniActividad: 0,
+    nombre: '',
+    activo: true
 }
 
 const useEDTStore = defineStore('edt-store', {
     state: () => ({
-        selectedProject: mockProject as ProjectDataType | null,
-        availableProjects: [mockProject] as ProjectDataType[],
-        edtRoot: mockEDTTree as EDTNodeType | null,
-        editingNodeId: null as string | null,
-        editingValue: '',
-        modalId: 'edt-modal'
+        // Iniciativas
+        iniciativasOpciones: [] as IniciativaOpcionType[],
+        selectedIniciativa: null as IniciativaOpcionType | null,
+        
+        // EDT Data
+        edtRoot: null as EDTNodeType | null,
+        edtRawData: null as EDTResponseType | null,
+        
+        // Loading & Error
+        isLoading: false,
+        error: null as string | null,
+        
+        // Selected items for modals
+        selectedEtapa: null as SelectedEtapaType | null,
+        selectedActividad: null as SelectedActividadType | null,
+        selectedSubActividad: null as SelectedSubActividadType | null,
+        
+        // Modal IDs
+        etapaModalId: 'etapa-modal',
+        actividadModalId: 'actividad-modal',
+        subactividadModalId: 'subactividad-modal',
+        
+        // Parent context for adding new items
+        parentContext: null as { id: string; dni: number; type: 'iniciativa' | 'etapa' | 'actividad' } | null
     }),
     actions: {
-        setSelectedProject(project: ProjectDataType | null) {
-            this.selectedProject = project
-            if (project) {
-                // Crear nodo raíz
-                this.edtRoot = {
-                    id: 'root',
-                    name: project.name,
-                    level: 0,
-                    children: [],
-                    parentId: null
+        // ============================================
+        // LOAD DATA
+        // ============================================
+        async cargarIniciativasOpciones() {
+            try {
+                this.isLoading = true
+                this.error = null
+                const response = await edtService.getIniciativasOpciones()
+                if (response.success) {
+                    this.iniciativasOpciones = response.data
                 }
-            } else {
-                this.edtRoot = null
+            } catch (error: any) {
+                this.error = error.message || 'Error al cargar iniciativas'
+                console.error('Error al cargar iniciativas:', error)
+            } finally {
+                this.isLoading = false
             }
         },
-        setAvailableProjects(projects: ProjectDataType[]) {
-            this.availableProjects = projects
-        },
-        setEDTRoot(root: EDTNodeType | null) {
-            this.edtRoot = root
-        },
-        startEditing(nodeId: string, nodeName: string) {
-            this.editingNodeId = nodeId
-            this.editingValue = nodeName
-        },
-        cancelEditing() {
-            this.editingNodeId = null
-            this.editingValue = ''
-        },
-        updateNodeName(nodeId: string, newName: string) {
-            if (!this.edtRoot) return
 
-            const updateTree = (node: EDTNodeType): EDTNodeType => {
-                if (node.id === nodeId) {
-                    return { ...node, name: newName }
+        async cargarEDT(dniIniciativa: number) {
+            try {
+                this.isLoading = true
+                this.error = null
+                const response = await edtService.getEDT(dniIniciativa)
+                if (response.success) {
+                    this.edtRawData = response.data
+                    this.edtRoot = convertirEDTResponseAArbol(response.data)
+                    this.selectedIniciativa = this.iniciativasOpciones.find(i => i.dni === dniIniciativa) || null
                 }
-                return { ...node, children: node.children.map(updateTree) }
+            } catch (error: any) {
+                this.error = error.message || 'Error al cargar EDT'
+                console.error('Error al cargar EDT:', error)
+            } finally {
+                this.isLoading = false
             }
-
-            this.edtRoot = updateTree(this.edtRoot)
-            this.cancelEditing()
         },
-        addChildNode(parentNode: EDTNodeType) {
-            if (!this.edtRoot) return
 
-            const generateId = () => `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-            
-            const newNode: EDTNodeType = {
-                id: generateId(),
-                name: parentNode.level === 0 ? 'Nueva Etapa' : 
-                      parentNode.level === 1 ? 'Nueva Actividad' : 'Nueva Sub-actividad',
-                level: parentNode.level + 1,
-                children: [],
-                parentId: parentNode.id
-            }
+        // ============================================
+        // ETAPAS
+        // ============================================
+        setEtapa(etapa: SelectedEtapaType = initialEtapa) {
+            this.selectedEtapa = etapa
+        },
+        
+        clearEtapa() {
+            this.selectedEtapa = null
+            this.parentContext = null
+        },
 
-            const updateTree = (node: EDTNodeType): EDTNodeType => {
-                if (node.id === parentNode.id) {
-                    return { ...node, children: [...node.children, newNode] }
+        async agregarEtapa(data: { nombre: string; psn: number; activo: boolean }) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.agregarEtapa({
+                    dniIniciativa: this.selectedIniciativa.dni,
+                    nombre: data.nombre,
+                    psn: data.psn,
+                    activo: data.activo
+                })
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
                 }
-                return { ...node, children: node.children.map(updateTree) }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al agregar etapa'
+                console.error('Error al agregar etapa:', error)
+                return false
+            } finally {
+                this.isLoading = false
             }
-
-            this.edtRoot = updateTree(this.edtRoot)
         },
-        deleteNode(nodeId: string) {
-            if (!this.edtRoot || nodeId === 'root') return
 
-            const updateTree = (node: EDTNodeType): EDTNodeType => {
-                return {
-                    ...node,
-                    children: node.children
-                        .filter(child => child.id !== nodeId)
-                        .map(updateTree)
+        async actualizarEtapa(dni: number, data: { nombre: string; psn: number; activo: boolean }) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.actualizarEtapa({
+                    dni,
+                    dniIniciativa: this.selectedIniciativa.dni,
+                    nombre: data.nombre,
+                    psn: data.psn,
+                    activo: data.activo
+                })
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
                 }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al actualizar etapa'
+                console.error('Error al actualizar etapa:', error)
+                return false
+            } finally {
+                this.isLoading = false
             }
-
-            this.edtRoot = updateTree(this.edtRoot)
         },
-        loadFromLocalStorage() {
-            const edtProject = localStorage.getItem('edtProject')
-            if (edtProject) {
-                const project = JSON.parse(edtProject)
-                this.availableProjects = [project]
+
+        async eliminarEtapa(dni: number) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.eliminarEtapa(dni)
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al eliminar etapa'
+                console.error('Error al eliminar etapa:', error)
+                return false
+            } finally {
+                this.isLoading = false
+            }
+        },
+
+        // ============================================
+        // ACTIVIDADES
+        // ============================================
+        setActividad(actividad: SelectedActividadType = initialActividad) {
+            this.selectedActividad = actividad
+        },
+        
+        clearActividad() {
+            this.selectedActividad = null
+            this.parentContext = null
+        },
+
+        async agregarActividad(dniEtapa: number, data: { nombre: string; psn: number; dias: number; activo: boolean }) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.agregarActividad({
+                    dniIniciativaEtapa: dniEtapa,
+                    nombre: data.nombre,
+                    psn: data.psn,
+                    dias: data.dias,
+                    activo: data.activo
+                })
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al agregar actividad'
+                console.error('Error al agregar actividad:', error)
+                return false
+            } finally {
+                this.isLoading = false
+            }
+        },
+
+        async actualizarActividad(dni: number, dniEtapa: number, data: { nombre: string; psn: number; dias: number; activo: boolean }) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.actualizarActividad({
+                    dni,
+                    dniIniciativaEtapa: dniEtapa,
+                    nombre: data.nombre,
+                    psn: data.psn,
+                    dias: data.dias,
+                    activo: data.activo
+                })
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al actualizar actividad'
+                console.error('Error al actualizar actividad:', error)
+                return false
+            } finally {
+                this.isLoading = false
+            }
+        },
+
+        async eliminarActividad(dni: number) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.eliminarActividad(dni)
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al eliminar actividad'
+                console.error('Error al eliminar actividad:', error)
+                return false
+            } finally {
+                this.isLoading = false
+            }
+        },
+
+        // ============================================
+        // SUB-ACTIVIDADES
+        // ============================================
+        setSubActividad(subActividad: SelectedSubActividadType = initialSubActividad) {
+            this.selectedSubActividad = subActividad
+        },
+        
+        clearSubActividad() {
+            this.selectedSubActividad = null
+            this.parentContext = null
+        },
+
+        async agregarSubActividad(dniActividad: number, data: { nombre: string; activo: boolean }) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.agregarSubActividad({
+                    dniIniciativaActividad: dniActividad,
+                    nombre: data.nombre,
+                    activo: data.activo
+                })
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al agregar sub-actividad'
+                console.error('Error al agregar sub-actividad:', error)
+                return false
+            } finally {
+                this.isLoading = false
+            }
+        },
+
+        async actualizarSubActividad(dni: number, dniActividad: number, data: { nombre: string; activo: boolean }) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.actualizarSubActividad({
+                    dni,
+                    dniIniciativaActividad: dniActividad,
+                    nombre: data.nombre,
+                    activo: data.activo
+                })
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al actualizar sub-actividad'
+                console.error('Error al actualizar sub-actividad:', error)
+                return false
+            } finally {
+                this.isLoading = false
+            }
+        },
+
+        async eliminarSubActividad(dni: number) {
+            if (!this.selectedIniciativa) return false
+
+            try {
+                this.isLoading = true
+                const response = await edtService.eliminarSubActividad(dni)
+
+                if (response.success) {
+                    await this.cargarEDT(this.selectedIniciativa.dni)
+                    return true
+                }
+                return false
+            } catch (error: any) {
+                this.error = error.message || 'Error al eliminar sub-actividad'
+                console.error('Error al eliminar sub-actividad:', error)
+                return false
+            } finally {
+                this.isLoading = false
             }
         }
     }

@@ -1,71 +1,206 @@
-import type { EDTNodeType, GanttTaskType } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 import useEDTStore from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/store/edtStore'
-import { getEDTNodesService, saveEDTTreeService } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/services/edtService'
-import { useRouter } from 'vue-router'
+import { showNotification } from '@/utils/toastNotifications'
+import { extractDniFromId } from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/composables/mappingEDTData'
+import type {
+    EtapaFormType,
+    ActividadFormType,
+    SubActividadFormType
+} from '@/modules/GestionDeProyectos/Operacion/EDTDelProyecto/types/edtTypes'
 
 export const useEDTActions = () => {
-    
     const edtStore = useEDTStore()
-    const router = useRouter()
 
-    const getEDTNodes = async (projectId: number): Promise<EDTNodeType[]> => {
-        const response = await getEDTNodesService(projectId)
-        return response.data.map(node => ({
-            id: node.id.toString(),
-            name: node.nombre,
-            level: node.nivel,
-            children: [],
-            parentId: node.padreId ? node.padreId.toString() : null
-        }))
-    }
-
-    const saveEDTTree = async (projectId: number, tree: EDTNodeType): Promise<{ message: string, status: string }> => {
-        const response = await saveEDTTreeService(projectId, tree)
-        return {
-            message: response.message,
-            status: response.success ? "success" : "error"
+    // ============================================
+    // LOAD DATA
+    // ============================================
+    const cargarIniciativas = async () => {
+        try {
+            await edtStore.cargarIniciativasOpciones()
+        } catch (error) {
+            console.error('Error al cargar iniciativas:', error)
+            showNotification('Error al cargar las iniciativas', 'error')
         }
     }
 
-    const generateGantt = () => {
-        if (!edtStore.edtRoot) {
-            return { success: false, message: 'No hay estructura EDT para generar el Gantt' }
+    const cargarEDT = async (dniIniciativa: number) => {
+        try {
+            await edtStore.cargarEDT(dniIniciativa)
+        } catch (error) {
+            console.error('Error al cargar EDT:', error)
+            showNotification('Error al cargar el EDT', 'error')
         }
+    }
 
-        // Convertir EDT a tareas
-        const tasks: GanttTaskType[] = []
-        let taskId = 1
-
-        const traverseTree = (node: EDTNodeType, parentTaskId: number | null = null) => {
-            const task: GanttTaskType = {
-                id: taskId++,
-                name: node.name,
-                level: node.level,
-                parentId: parentTaskId,
-                startDate: null,
-                endDate: null,
-                duration: 1,
-                dependencies: [],
-                responsible: ''
+    // ============================================
+    // ETAPAS
+    // ============================================
+    const crearEtapa = async (form: EtapaFormType): Promise<boolean> => {
+        try {
+            const success = await edtStore.agregarEtapa(form)
+            if (success) {
+                showNotification('Etapa creada exitosamente', 'success')
+                return true
             }
-            tasks.push(task)
-
-            const currentTaskId = task.id
-            node.children.forEach(child => traverseTree(child, currentTaskId))
+            showNotification('Error al crear la etapa', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al crear etapa:', error)
+            showNotification('Error al crear la etapa', 'error')
+            return false
         }
-
-        traverseTree(edtStore.edtRoot)
-        localStorage.setItem('ganttTasks', JSON.stringify(tasks))
-        localStorage.setItem('ganttProject', JSON.stringify(edtStore.selectedProject))
-        
-        router.push('/gestion-de-proyectos/diagrama-de-gantt')
-        
-        return { success: true, message: 'Diagrama de Gantt generado' }
     }
 
-    return { 
-        getEDTNodes,
-        saveEDTTree,
-        generateGantt
+    const actualizarEtapa = async (id: string, form: EtapaFormType): Promise<boolean> => {
+        try {
+            const dni = extractDniFromId(id)
+            const success = await edtStore.actualizarEtapa(dni, form)
+            if (success) {
+                showNotification('Etapa actualizada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al actualizar la etapa', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al actualizar etapa:', error)
+            showNotification('Error al actualizar la etapa', 'error')
+            return false
+        }
+    }
+
+    const eliminarEtapa = async (id: string): Promise<boolean> => {
+        try {
+            const dni = extractDniFromId(id)
+            const success = await edtStore.eliminarEtapa(dni)
+            if (success) {
+                showNotification('Etapa eliminada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al eliminar la etapa', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al eliminar etapa:', error)
+            showNotification('Error al eliminar la etapa', 'error')
+            return false
+        }
+    }
+
+    // ============================================
+    // ACTIVIDADES
+    // ============================================
+    const crearActividad = async (dniEtapa: number, form: ActividadFormType): Promise<boolean> => {
+        try {
+            const success = await edtStore.agregarActividad(dniEtapa, form)
+            if (success) {
+                showNotification('Actividad creada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al crear la actividad', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al crear actividad:', error)
+            showNotification('Error al crear la actividad', 'error')
+            return false
+        }
+    }
+
+    const actualizarActividad = async (id: string, dniEtapa: number, form: ActividadFormType): Promise<boolean> => {
+        try {
+            const dni = extractDniFromId(id)
+            const success = await edtStore.actualizarActividad(dni, dniEtapa, form)
+            if (success) {
+                showNotification('Actividad actualizada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al actualizar la actividad', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al actualizar actividad:', error)
+            showNotification('Error al actualizar la actividad', 'error')
+            return false
+        }
+    }
+
+    const eliminarActividad = async (id: string): Promise<boolean> => {
+        try {
+            const dni = extractDniFromId(id)
+            const success = await edtStore.eliminarActividad(dni)
+            if (success) {
+                showNotification('Actividad eliminada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al eliminar la actividad', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al eliminar actividad:', error)
+            showNotification('Error al eliminar la actividad', 'error')
+            return false
+        }
+    }
+
+    // ============================================
+    // SUB-ACTIVIDADES
+    // ============================================
+    const crearSubActividad = async (dniActividad: number, form: SubActividadFormType): Promise<boolean> => {
+        try {
+            const success = await edtStore.agregarSubActividad(dniActividad, form)
+            if (success) {
+                showNotification('Sub-actividad creada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al crear la sub-actividad', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al crear sub-actividad:', error)
+            showNotification('Error al crear la sub-actividad', 'error')
+            return false
+        }
+    }
+
+    const actualizarSubActividad = async (id: string, dniActividad: number, form: SubActividadFormType): Promise<boolean> => {
+        try {
+            const dni = extractDniFromId(id)
+            const success = await edtStore.actualizarSubActividad(dni, dniActividad, form)
+            if (success) {
+                showNotification('Sub-actividad actualizada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al actualizar la sub-actividad', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al actualizar sub-actividad:', error)
+            showNotification('Error al actualizar la sub-actividad', 'error')
+            return false
+        }
+    }
+
+    const eliminarSubActividad = async (id: string): Promise<boolean> => {
+        try {
+            const dni = extractDniFromId(id)
+            const success = await edtStore.eliminarSubActividad(dni)
+            if (success) {
+                showNotification('Sub-actividad eliminada exitosamente', 'success')
+                return true
+            }
+            showNotification('Error al eliminar la sub-actividad', 'error')
+            return false
+        } catch (error) {
+            console.error('Error al eliminar sub-actividad:', error)
+            showNotification('Error al eliminar la sub-actividad', 'error')
+            return false
+        }
+    }
+
+    return {
+        cargarIniciativas,
+        cargarEDT,
+        crearEtapa,
+        actualizarEtapa,
+        eliminarEtapa,
+        crearActividad,
+        actualizarActividad,
+        eliminarActividad,
+        crearSubActividad,
+        actualizarSubActividad,
+        eliminarSubActividad
     }
 }
