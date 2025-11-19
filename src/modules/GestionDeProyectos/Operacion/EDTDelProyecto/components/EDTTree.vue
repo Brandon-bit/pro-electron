@@ -334,7 +334,8 @@ watch(
                                 <BaseButton
                                     icon="delete"
                                     text=""
-                                    class-name="btn-stage-action btn-xs btn-warning"
+                                    class-name="btn-stage-action btn-xs"
+                                    variant="error"
                                     title="Eliminar etapa"
                                     @click.stop="handleDeleteStage(id, data)"
                                 />
@@ -371,7 +372,8 @@ watch(
                                 <BaseButton
                                     icon="delete"
                                     text=""
-                                    class-name="btn-stage-action btn-xs btn-warning"
+                                    class-name="btn-stage-action btn-xs"
+                                    variant="error"
                                     title="Eliminar actividad"
                                     @click.stop="handleDeleteActivity(id, data.parentId, data)"
                                 />
