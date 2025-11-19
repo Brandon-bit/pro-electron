@@ -6,7 +6,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import BaseFormInput from '@/shared/components/BaseFormInput.vue'
 import BaseTextArea from '@/shared/components/BaseTextArea.vue'
 import BaseFormSelect from '@/shared/components/BaseFormSelect.vue'
-import BaseFormCheckbox from '@/shared/components/BaseFormCheckbox.vue'
 import BaseFormMultiSelect from '@/shared/components/BaseFormMultiSelect.vue'
 import useProjectStore from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/store/projectStore'
 import { projectSchema } from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/validations/projectValidation'
@@ -15,99 +14,134 @@ import { showNotification } from '@/utils/toastNotifications'
 
 const route = useRoute()
 const projectStore = useProjectStore()
-const { createProject, generateFolio, saveToLocalStorage } = useProjectActions()
+const { loadFormData, loadCategoriesByArea, loadParentProjects, createProject, saveToLocalStorage } = useProjectActions()
 
 const isLoading = ref(false)
 const isFromInitiative = ref(false)
 const initiativeId = ref<number | null>(null)
 
+// Computed options for selects
 const classificationOptions = computed(() => 
-    projectStore.classifications.map(c => ({ id: c, label: c }))
+    projectStore.classifications.map(c => ({ id: c.dni, label: c.label }))
 )
 
 const areaOptions = computed(() => 
-    projectStore.areas.map(a => ({ id: a.id, label: a.name }))
+    projectStore.areas.map(a => ({ id: a.dni, label: a.label }))
 )
 
 const categoryOptions = computed(() => 
-    projectStore.selectedCategories.map(c => ({ id: c, label: c }))
+    projectStore.categories.map(c => ({ id: c.dni, label: c.label }))
 )
 
 const leaderOptions = computed(() => 
-    projectStore.users.leaders.map(u => ({ id: u.id, label: u.name }))
+    projectStore.leaders.map(u => ({ id: u.dni, label: u.label }))
 )
 
 const sponsorOptions = computed(() => 
-    projectStore.users.sponsors.map(u => ({ id: u.id, label: u.name }))
+    projectStore.sponsors.map(u => ({ id: u.dni, label: u.label }))
 )
 
 const pmOptions = computed(() => 
-    projectStore.users.projectManagers.map(u => ({ id: u.id, label: u.name }))
+    projectStore.projectManagers.map(u => ({ id: u.dni, label: u.label }))
 )
 
 const processOptions = computed(() => 
-    projectStore.users.processManagers.map(u => ({ id: u.id, label: u.name }))
-)
-
-const parentProjectOptions = computed(() => 
-    projectStore.parentProjects.map(p => ({ id: p.id, label: p.name }))
+    projectStore.processManagers.map(u => ({ id: u.dni, label: u.label }))
 )
 
 const adminOptions = computed(() => 
-    projectStore.users.admins.map(u => ({ id: u.id, label: u.name }))
+    projectStore.admins.map(u => ({ id: u.dni, label: u.label }))
 )
 
-const { handleSubmit, resetForm, values } = useForm({
+const parentProjectOptions = computed(() => 
+    projectStore.parentProjects.map(p => ({ id: p.dni, label: p.label }))
+)
+
+const { handleSubmit, resetForm, values, setFieldValue } = useForm({
     validationSchema: toTypedSchema(projectSchema),
     initialValues: projectStore.selectedProject
 })
 
-// Watch area changes to update categories
-watch(() => values.area, (newArea) => {
-    if (newArea) {
-        projectStore.updateCategoriesByArea(newArea)
+// Watch area changes to load categories
+watch(() => values.areaId, async (newAreaId) => {
+    const areaIdNum = typeof newAreaId === 'string' ? parseInt(newAreaId) : newAreaId
+    if (areaIdNum && areaIdNum > 0) {
+        await loadCategoriesByArea(areaIdNum)
+    } else {
+        projectStore.clearCategories()
+    }
+})
+
+// Watch isSubproject changes to load parent projects
+watch(() => values.isSubproject, async (isSubproject) => {
+    console.log('isSubproject changed:', isSubproject)
+    if (isSubproject) {
+        console.log('Loading parent projects...')
+        await loadParentProjects()
+        console.log('Parent projects loaded:', projectStore.parentProjects.length)
+    } else {
+        projectStore.clearParentProjects()
     }
 })
 
 const onSubmit = handleSubmit(async (formValues) => {
     isLoading.value = true
     try {
-        // Generate folio
-        const projects = JSON.parse(localStorage.getItem('projects') || '[]')
-        const folio = String(projects.length + 1).padStart(8, '0')
+        // Create project via API
+        const result = await createProject(formValues as any)
         
-        const projectWithFolio = {
-            ...formValues,
-            folio,
-            creationDate: new Date(),
-            // Si viene de una iniciativa, agregar los campos adicionales
-            ...(isFromInitiative.value && {
-                fromInitiative: true,
-                initiativeId: initiativeId.value
-            })
+        if (result.status === 'success' && result.data) {
+            // Optionally save to localStorage for backup
+            saveToLocalStorage(result.data)
+            
+            // Reset form and state
+            resetForm()
+            projectStore.resetForm()
+            
+            // Reset initiative flags if applicable
+            if (isFromInitiative.value) {
+                isFromInitiative.value = false
+                initiativeId.value = null
+            }
         }
-        
-        // Save to localStorage
-        saveToLocalStorage(projectWithFolio as any)
-        
-        showNotification('Proyecto agregado correctamente', 'success')
-        
-        // Reset form
-        resetForm()
-        projectStore.resetForm()
-        isFromInitiative.value = false
-        initiativeId.value = null
     } catch (error: any) {
+        console.error('Error creating project:', error)
         showNotification(error.message || 'Error al guardar el proyecto', 'error')
     } finally {
         isLoading.value = false
     }
 })
 
-onMounted(() => {
-    projectStore.loadFromSOW()
+// Watch para detectar cuando se selecciona una plantilla
+watch(() => projectStore.selectedTemplate, (template) => {
+    if (template) {
+        // Pre-llenar el nombre del proyecto con el nombre de la plantilla
+        setFieldValue('name', template.label)
+        
+        // Marcar que usa plantilla
+        setFieldValue('useTemplate', true)
+        setFieldValue('templateId', Number(template.dni))
+    }
+})
+
+// Función para remover la plantilla seleccionada
+const handleRemoveTemplate = () => {
+    // Limpiar la plantilla del store
+    projectStore.clearSelectedTemplate()
     
-    // Detectar si viene desde una iniciativa
+    // Resetear los campos del formulario relacionados con plantillas
+    setFieldValue('useTemplate', false)
+    setFieldValue('templateId', null)
+    
+    // Limpiar el nombre si aún tiene el nombre de la plantilla
+    // (opcional, el usuario puede querer mantener el nombre)
+}
+
+onMounted(async () => {
+    // Load form data (classifications, areas, leaders, etc.)
+    await loadFormData()
+    
+    // Detectar si viene desde una iniciativa (EDT)
     const fromInitiativeParam = route.query.fromInitiative
     const initiativeNameParam = route.query.initiativeName
     
@@ -117,8 +151,12 @@ onMounted(() => {
         
         // Pre-llenar el nombre del proyecto con el nombre de la iniciativa
         if (initiativeNameParam) {
-            projectStore.updateField('name', initiativeNameParam as string)
+            setFieldValue('name', initiativeNameParam as string)
         }
+        
+        // Marcar que usa iniciativa
+        setFieldValue('useInitiative', true)
+        setFieldValue('initiativeId', Number(fromInitiativeParam))
         
         // Mostrar notificación informativa
         showNotification(
@@ -126,6 +164,9 @@ onMounted(() => {
             'info',
             5000
         )
+    } else {
+        // Si NO viene de iniciativa, cargar datos desde SOW si están disponibles
+        projectStore.loadFromSOW()
     }
 })
 </script>
@@ -146,6 +187,27 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
+
+            <!-- Banner informativo si se está usando una plantilla -->
+            <div v-if="projectStore.selectedTemplate" class="alert alert-success mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="flex-1">
+                    <h3 class="font-bold">Usando Plantilla: {{ projectStore.selectedTemplate.label }}</h3>
+                    <div class="text-xs">
+                        El proyecto se creará con la estructura y configuración de esta plantilla.
+                    </div>
+                </div>
+                <button 
+                    type="button"
+                    class="btn btn-sm btn-ghost"
+                    @click="handleRemoveTemplate"
+                    title="Dejar de usar plantilla"
+                >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
             
             <h2 class="card-title">Información del Proyecto</h2>
             
@@ -160,10 +222,9 @@ onMounted(() => {
                     />
                     
                     <BaseFormInput
-                        name="projectId"
-                        label="ID del Proyecto"
-                        placeholder="Generado automáticamente"
-                        disabled
+                        name="customId"
+                        label="ID Personalizado"
+                        placeholder="Ingresa un ID personalizado (opcional)"
                     />
                     
                     <BaseFormInput
@@ -181,14 +242,15 @@ onMounted(() => {
                     />
                     
                     <BaseFormInput
-                        name="budget"
+                        name="estimatedBudget"
                         label="Presupuesto Estimado"
                         type="number"
                         placeholder="0.00"
+                        required
                     />
                     
                     <BaseFormSelect
-                        name="classification"
+                        name="classificationId"
                         label="Clasificación de Proyecto"
                         :options="classificationOptions"
                         placeholder="Selecciona clasificación"
@@ -218,39 +280,43 @@ onMounted(() => {
                 <h3 class="text-lg font-semibold">Equipo del Proyecto</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <BaseFormSelect
-                        name="leader"
+                        name="leaderId"
                         label="Líder"
                         :options="leaderOptions"
                         placeholder="Selecciona líder"
+                        required
                     />
                     
                     <BaseFormSelect
-                        name="sponsor"
+                        name="sponsorId"
                         label="Sponsor"
                         :options="sponsorOptions"
                         placeholder="Selecciona sponsor"
+                        required
                     />
                     
                     <BaseFormSelect
-                        name="projectManager"
+                        name="projectManagerId"
                         label="Project Manager"
                         :options="pmOptions"
                         placeholder="Selecciona PM"
+                        required
                     />
                     
                     <BaseFormSelect
-                        name="processManager"
+                        name="processManagerId"
                         label="Gestor de Procesos"
                         :options="processOptions"
                         placeholder="Selecciona gestor"
+                        required
                     />
                     
                     <!-- Additional Admins -->
                     <BaseFormMultiSelect
-                        name="additionalAdmins"
+                        name="adminIds"
                         label="Administradores Adicionales"
                         :options="adminOptions"
-                        placeholder="No hay administradores disponibles"
+                        placeholder="Selecciona administradores"
                     />
                 </div>
 
@@ -260,18 +326,20 @@ onMounted(() => {
                 <h3 class="text-lg font-semibold">Área y Categoría</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <BaseFormSelect
-                        name="area"
+                        name="areaId"
                         label="Área del Proyecto"
                         :options="areaOptions"
                         placeholder="Selecciona área"
+                        required
                     />
                     
                     <BaseFormSelect
-                        name="category"
+                        name="categoryId"
                         label="Categorías"
                         :options="categoryOptions"
-                        :placeholder="values.area ? 'Selecciona categoría' : 'Primero selecciona un área'"
-                        :disabled="!values.area"
+                        :placeholder="values.areaId ? 'Selecciona categoría' : 'Primero selecciona un área'"
+                        :disabled="!values.areaId || projectStore.isLoadingCategories"
+                        required
                     />
                 </div>
 
@@ -286,7 +354,7 @@ onMounted(() => {
                                 type="checkbox" 
                                 class="toggle toggle-primary"
                                 :checked="values.isSubproject"
-                                @change="(e) => projectStore.updateField('isSubproject', (e.target as HTMLInputElement).checked)"
+                                @change="(e) => setFieldValue('isSubproject', (e.target as HTMLInputElement).checked)"
                             />
                             <div class="flex flex-col">
                                 <span class="label-text font-semibold">SubProyecto</span>
@@ -297,10 +365,12 @@ onMounted(() => {
 
                     <div v-if="values.isSubproject" class="ml-12 mt-3">
                         <BaseFormSelect
-                            name="parentProject"
+                            name="parentProjectId"
                             label="Proyecto Padre"
                             :options="parentProjectOptions"
-                            placeholder="Selecciona proyecto padre"
+                            :placeholder="projectStore.isLoadingParentProjects ? 'Cargando proyectos...' : 'Selecciona proyecto padre'"
+                            :disabled="projectStore.isLoadingParentProjects"
+                            required
                         />
                     </div>
                 </div>
@@ -321,7 +391,7 @@ onMounted(() => {
                                     type="checkbox" 
                                     class="toggle toggle-primary"
                                     :checked="values.includeSaturday"
-                                    @change="(e) => projectStore.updateField('includeSaturday', (e.target as HTMLInputElement).checked)"
+                                    @change="(e) => setFieldValue('includeSaturday', (e.target as HTMLInputElement).checked)"
                                 />
                                 <span class="label-text font-semibold">Sábados</span>
                             </label>
@@ -333,7 +403,7 @@ onMounted(() => {
                                     type="checkbox" 
                                     class="toggle toggle-primary"
                                     :checked="values.includeSunday"
-                                    @change="(e) => projectStore.updateField('includeSunday', (e.target as HTMLInputElement).checked)"
+                                    @change="(e) => setFieldValue('includeSunday', (e.target as HTMLInputElement).checked)"
                                 />
                                 <span class="label-text font-semibold">Domingos</span>
                             </label>
@@ -344,30 +414,19 @@ onMounted(() => {
                 <!-- Tipo de Proyecto -->
                 <div class="border border-base-300 rounded-lg p-4 space-y-3">
                     <h3 class="text-base font-semibold text-base-content/70">Tipo de Proyecto</h3>
-                    <div class="flex gap-8">
-                        <div class="form-control">
-                            <label class="label cursor-pointer justify-start gap-4">
-                                <input 
-                                    type="checkbox" 
-                                    class="toggle toggle-primary"
-                                    :checked="values.projectType === 'expense'"
-                                    @change="(e) => projectStore.updateField('projectType', (e.target as HTMLInputElement).checked ? 'expense' : '')"
-                                />
-                                <span class="label-text font-semibold">Gasto</span>
-                            </label>
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label cursor-pointer justify-start gap-4">
-                                <input 
-                                    type="checkbox" 
-                                    class="toggle toggle-primary"
-                                    :checked="values.projectType === 'investment'"
-                                    @change="(e) => projectStore.updateField('projectType', (e.target as HTMLInputElement).checked ? 'investment' : '')"
-                                />
-                                <span class="label-text font-semibold">Inversión</span>
-                            </label>
-                        </div>
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <input 
+                                type="checkbox" 
+                                class="toggle toggle-primary"
+                                :checked="values.isInvestmentType"
+                                @change="(e) => setFieldValue('isInvestmentType', (e.target as HTMLInputElement).checked)"
+                            />
+                            <div class="flex flex-col">
+                                <span class="label-text font-semibold">Tipo Inversión</span>
+                                <span class="text-xs text-base-content/60">Marcar si el proyecto es de tipo inversión</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
 

@@ -1,69 +1,126 @@
-import type { ProjectResponseType, ProjectFormType, ProjectType } from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/types/projectTypes'
+import type {
+  ProjectFormType,
+  ProjectType,
+} from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/types/projectTypes'
 import useProjectStore from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/store/projectStore'
-import { createProjectService, deleteProjectService, updateProjectService, getProjectsService, generateFolioService } from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/services/projectService'
-import { mapProject, mapProjectRequest } from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/composables/mappingProjectData'
+import { projectService } from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/services/projectService'
+import {
+  mapProjectResponse,
+  mapProjectRequest,
+} from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/composables/mappingProjectData'
+import { showNotification } from '@/utils/toastNotifications'
 
 export const useProjectActions = () => {
-    
-    const projectStore = useProjectStore()
+  const projectStore = useProjectStore()
 
-    const getProjects = async (page: number, pageSize: number): Promise<{ items: ProjectType[], total: number }> => {
-        const response = await getProjectsService(page, pageSize)
-        return {
-            items: response.data.items.map(mapProject),
-            total: response.data.totalItems
-        }
+  /**
+   * Load all form data options (classifications, areas, leaders, etc.)
+   */
+  const loadFormData = async () => {
+    try {
+      projectStore.isLoading = true
+      const response = await projectService.getProjectFormDataService()
+      projectStore.setFormDataOptions(response.data)
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al cargar los datos del formulario', 'error')
+    } finally {
+      projectStore.isLoading = false
     }
+  }
 
-    const createProject = async (data: ProjectFormType): Promise<{ message: string, status: string, data: ProjectResponseType }> => {
-        const model = mapProjectRequest(data)
-        const response = await createProjectService(model)
-        return {
-            message: response.message,
-            status: response.success ? "success" : "error",
-            data: response.data
-        }
+  /**
+   * Load category options for a specific area
+   */
+  const loadCategoriesByArea = async (areaId: number) => {
+    try {
+      projectStore.isLoadingCategories = true
+      projectStore.clearCategories()
+      const response = await projectService.getCategoryOptionsByAreaService(areaId)
+      projectStore.setCategories(response.data)
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al cargar las categorías', 'error')
+    } finally {
+      projectStore.isLoadingCategories = false
     }
+  }
 
-    const editProject = async (data: ProjectFormType): Promise<{ message: string, status: string, data: ProjectResponseType }> => {
-        const model = mapProjectRequest(data)
-        const id = projectStore.selectedProject.id ?? 0
-        const response = await updateProjectService(id, model)
-        return {
-            message: response.message,
-            status: response.success ? "success" : "error",
-            data: response.data
-        }
+  /**
+   * Load parent project options when user selects subproject
+   */
+  const loadParentProjects = async () => {
+    try {
+      projectStore.isLoadingParentProjects = true
+      const response = await projectService.getParentProjectOptionsService()
+      projectStore.setParentProjects(response.data)
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al cargar los proyectos padre', 'error')
+    } finally {
+      projectStore.isLoadingParentProjects = false
     }
+  }
 
-    const deleteProject = async (): Promise<{ message: string, status: string, data: ProjectResponseType }> => {
-        let id = projectStore.selectedProject?.id
-        if (id == undefined) id = 0
-        const response = await deleteProjectService(id)
-        return {
-            message: response.message,
-            status: response.success ? "success" : "error",
-            data: response.data
-        }
+  /**
+   * Load template options when user opens templates modal
+   */
+  const loadTemplates = async () => {
+    try {
+      projectStore.isLoadingTemplates = true
+      const response = await projectService.getTemplateOptionsService()
+      projectStore.setTemplates(response.data)
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al cargar las plantillas', 'error')
+    } finally {
+      projectStore.isLoadingTemplates = false
     }
+  }
 
-    const generateFolio = async (): Promise<string> => {
-        const response = await generateFolioService()
-        return response.data.folio
+  /**
+   * Create a new project
+   */
+  const createProject = async (
+    data: ProjectFormType
+  ): Promise<{ message: string; status: string; data: ProjectType | null }> => {
+    try {
+      const payload = mapProjectRequest(data)
+      console.log(payload)
+      const response = await projectService.createProjectService(payload)
+      const mapped = mapProjectResponse(response.data)
+      showNotification('Proyecto creado exitosamente', 'success')
+      return {
+        message: response.message,
+        status: response.success ? 'success' : 'error',
+        data: mapped,
+      }
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al crear el proyecto', 'error')
+      return { message: 'Error al crear el proyecto', status: 'error', data: null }
     }
+  }
 
-    const saveToLocalStorage = (project: ProjectType) => {
-        const projects = JSON.parse(localStorage.getItem('projects') || '[]')
-        projects.push(project)
-        localStorage.setItem('projects', JSON.stringify(projects))
+  /**
+   * Save project to localStorage (for offline/backup purposes)
+   */
+  const saveToLocalStorage = (project: ProjectType) => {
+    try {
+      const projects = JSON.parse(localStorage.getItem('projects') || '[]')
+      projects.push(project)
+      localStorage.setItem('projects', JSON.stringify(projects))
+    } catch (error) {
+      console.error('Error saving to localStorage:', error)
     }
+  }
 
-    return { 
-        createProject, 
-        editProject, 
-        deleteProject, 
-        getProjects,
-        generateFolio,
-        saveToLocalStorage
-    }
+  return {
+    loadFormData,
+    loadCategoriesByArea,
+    loadParentProjects,
+    loadTemplates,
+    createProject,
+    saveToLocalStorage,
+  }
 }

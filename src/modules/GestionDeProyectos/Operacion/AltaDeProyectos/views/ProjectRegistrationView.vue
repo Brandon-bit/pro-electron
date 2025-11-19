@@ -1,22 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useModalStore } from '@/shared/stores/modal.store'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
 import ProjectForm from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/components/ProjectForm.vue'
 import TemplateModal from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/components/TemplateModal.vue'
 import ImportModal from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/components/ImportModal.vue'
 import useProjectStore from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/store/projectStore'
-import { showNotification } from '@/utils/toastNotifications'
 
+const route = useRoute()
+const modalStore = useModalStore()
 const projectStore = useProjectStore()
 
-const showTemplateModal = ref(false)
 const showImportModal = ref(false)
 
-const handleApplyTemplate = (templateData: any) => {
-    Object.keys(templateData).forEach(key => {
-        projectStore.updateField(key as any, templateData[key])
+// Detectar si viene desde una iniciativa (EDT)
+const isFromInitiative = computed(() => !!route.query.fromInitiative)
+
+const openTemplateModal = () => {
+    modalStore.open(projectStore.templateModalId, {
+        title: 'Selecciona una plantilla',
+        type: 'CREATE'
     })
-    showTemplateModal.value = false
+}
+
+const handleApplyTemplate = (template: { dni: number | string; label: string }) => {
+    // Guardar la plantilla seleccionada en el store
+    projectStore.setSelectedTemplate(template)
 }
 
 const handleImportData = (data: any) => {
@@ -39,7 +49,10 @@ const handleImportData = (data: any) => {
             <div class="flex gap-3">
                 <button
                     class="btn btn-outline"
-                    @click="showTemplateModal = true"
+                    :disabled="isFromInitiative"
+                    :class="{ 'btn-disabled': isFromInitiative }"
+                    @click="openTemplateModal"
+                    :title="isFromInitiative ? 'No disponible para proyectos desde iniciativas' : 'Utilizar una plantilla predefinida'"
                 >
                     <span class="material-symbols-outlined text-sm">description</span>
                     Utilizar Plantilla
@@ -47,6 +60,7 @@ const handleImportData = (data: any) => {
                 <button
                     class="btn btn-outline"
                     @click="showImportModal = true"
+                    title="Importar datos desde un archivo"
                 >
                     <span class="material-symbols-outlined text-sm">upload_file</span>
                     Importar Layout
@@ -58,11 +72,7 @@ const handleImportData = (data: any) => {
         <ProjectForm />
 
         <!-- Modals -->
-        <TemplateModal
-            :show="showTemplateModal"
-            @close="showTemplateModal = false"
-            @apply="handleApplyTemplate"
-        />
+        <TemplateModal @apply="handleApplyTemplate" />
 
         <ImportModal
             :show="showImportModal"

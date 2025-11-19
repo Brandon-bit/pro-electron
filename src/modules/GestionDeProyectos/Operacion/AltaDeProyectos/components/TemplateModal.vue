@@ -1,119 +1,127 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import BaseModal from '@/shared/components/BaseModal.vue'
+import { useModalStore } from '@/shared/stores/modal.store'
 import { showNotification } from '@/utils/toastNotifications'
-
-const props = defineProps<{
-    show: boolean
-}>()
+import useProjectStore from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/store/projectStore'
+import { useProjectActions } from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/composables/useProjectActions'
 
 const emit = defineEmits<{
-    close: []
-    apply: [template: any]
+    apply: [template: { dni: number | string; label: string }]
 }>()
 
-const templates = ref([
-    {
-        id: '1',
-        name: 'Proyecto de Desarrollo de Software',
-        description: 'Plantilla para proyectos de desarrollo',
-        data: {
-            classification: 'Estratégico',
-            area: '1',
-            includeSaturday: false,
-            includeSunday: false
-        }
-    },
-    {
-        id: '2',
-        name: 'Proyecto de Marketing Digital',
-        description: 'Plantilla para campañas de marketing',
-        data: {
-            classification: 'Operacional',
-            area: '2',
-            includeSaturday: true,
-            includeSunday: false
-        }
-    },
-    {
-        id: '3',
-        name: 'Proyecto de Capacitación',
-        description: 'Plantilla para proyectos de RRHH',
-        data: {
-            classification: 'Táctico',
-            area: '3',
-            includeSaturday: false,
-            includeSunday: false
+const router = useRouter()
+const modalStore = useModalStore()
+const projectStore = useProjectStore()
+const { loadTemplates } = useProjectActions()
+
+const selectedTemplateId = ref<string | number>('')
+const isSubmitting = ref(false)
+
+// Cargar plantillas cuando se abre el modal
+watch(() => modalStore.modals[projectStore.templateModalId]?.status, async (isOpen) => {
+    if (isOpen) {
+        selectedTemplateId.value = ''
+        if (projectStore.templates.length === 0) {
+            await loadTemplates()
         }
     }
-])
+})
 
-const selectedTemplate = ref<string>('')
-
-const handleApply = () => {
-    if (!selectedTemplate.value) {
+const onSubmit = async () => {
+    if (!selectedTemplateId.value) {
         showNotification('Selecciona una plantilla', 'warning')
         return
     }
     
-    const template = templates.value.find(t => t.id === selectedTemplate.value)
+    const template = projectStore.templates.find(t => t.dni === selectedTemplateId.value)
     if (template) {
-        emit('apply', template.data)
-        showNotification('Plantilla aplicada correctamente', 'success')
-        emit('close')
+        isSubmitting.value = true
+        try {
+            emit('apply', template)
+            selectedTemplateId.value = ''
+            modalStore.close(projectStore.templateModalId)
+        } finally {
+            isSubmitting.value = false
+        }
     }
 }
 
-const handleClose = () => {
-    selectedTemplate.value = ''
-    emit('close')
+const handleManageTemplates = () => {
+    // Cerrar el modal actual
+    modalStore.close(projectStore.templateModalId)
+    
+    // Navegar al módulo de administración de plantillas
+    router.push({ name: 'PlantillasConfiguration' })
 }
 </script>
 
 <template>
-    <dialog :class="['modal', { 'modal-open': props.show }]">
-        <div class="modal-box max-w-2xl">
-            <h3 class="font-bold text-lg mb-4">Utilizar Plantilla</h3>
+    <BaseModal
+        :onSubmit="onSubmit"
+        :modalId="projectStore.templateModalId"
+        :isSubmitting="isSubmitting"
+    >
+        <template #modalBody>
+            <!-- Botón Administrar Plantillas -->
+            <div class="flex justify-center mb-6">
+                <button 
+                    type="button"
+                    class="btn btn-primary btn-sm gap-2"
+                    @click="handleManageTemplates"
+                >
+                    Administrar plantillas
+                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </button>
+            </div>
             
-            <div class="space-y-4">
-                <p class="text-sm opacity-70">
-                    Selecciona una plantilla para pre-cargar datos del proyecto
-                </p>
-                
-                <div class="space-y-3">
-                    <div 
-                        v-for="template in templates" 
-                        :key="template.id"
-                        class="form-control"
+            <!-- Loading State -->
+            <div v-if="projectStore.isLoadingTemplates" class="flex justify-center items-center py-12">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+            
+            <!-- Empty State -->
+            <div v-else-if="projectStore.templates.length === 0" class="text-center py-12">
+                <span class="material-symbols-outlined text-6xl opacity-30">description</span>
+                <p class="mt-4 text-lg font-semibold">No hay plantillas disponibles</p>
+                <p class="text-sm opacity-70 mt-2">Crea plantillas desde el módulo de administración</p>
+            </div>
+            
+            <!-- Templates List -->
+            <div v-else class="space-y-3 max-h-[50vh] overflow-y-auto px-2">
+                <label 
+                    v-for="template in projectStore.templates" 
+                    :key="template.dni"
+                    :class="[
+                        'flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all',
+                        selectedTemplateId === template.dni 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-base-300 hover:border-base-400 hover:bg-base-200/50'
+                    ]"
+                >
+                    <input 
+                        type="radio" 
+                        name="template" 
+                        :value="template.dni"
+                        v-model="selectedTemplateId"
+                        class="radio radio-primary radio-sm"
+                    />
+                    <span :class="[
+                        'flex-1 font-medium',
+                        selectedTemplateId === template.dni ? 'text-primary' : 'text-base-content'
+                    ]">
+                        {{ template.label }}
+                    </span>
+                    <!-- Badge opcional para plantillas incompletas -->
+                    <span 
+                        v-if="false" 
+                        class="badge badge-warning badge-sm"
                     >
-                        <label class="label cursor-pointer justify-start gap-4 p-4 border rounded-lg hover:bg-base-200 transition-colors">
-                            <input 
-                                type="radio" 
-                                name="template" 
-                                class="radio radio-primary"
-                                :value="template.id"
-                                v-model="selectedTemplate"
-                            />
-                            <div class="flex-1">
-                                <span class="label-text font-semibold block">{{ template.name }}</span>
-                                <span class="label-text-alt opacity-70">{{ template.description }}</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
+                        Plantilla incompleta
+                    </span>
+                </label>
             </div>
-            
-            <div class="modal-action">
-                <button class="btn btn-ghost" @click="handleClose">
-                    Cancelar
-                </button>
-                <button class="btn btn-primary" @click="handleApply">
-                    <span class="material-symbols-outlined text-sm">check</span>
-                    Aplicar Plantilla
-                </button>
-            </div>
-        </div>
-        <form method="dialog" class="modal-backdrop" @click="handleClose">
-            <button>close</button>
-        </form>
-    </dialog>
+        </template>
+    </BaseModal>
 </template>

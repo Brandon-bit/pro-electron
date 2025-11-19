@@ -1,140 +1,210 @@
 import { defineStore } from 'pinia'
-import type { ProjectType, UserType, AreaType } from '@/modules/GestionDeProyectos\AltaDeProyectos\types\projectTypes'
+import type {
+  ProjectType,
+  OptionType,
+} from '@/modules/GestionDeProyectos/Operacion/AltaDeProyectos/types/projectTypes'
 
 const initialProject: ProjectType = {
-    id: undefined,
-    folio: undefined,
-    name: '',
-    startDate: null,
-    endDate: null,
-    budget: '',
-    projectId: '',
-    objective: '',
-    scope: '',
-    leader: '',
-    sponsor: '',
-    projectManager: '',
-    processManager: '',
-    area: '',
-    category: '',
-    additionalAdmins: [],
-    isSubproject: false,
-    parentProject: '',
-    includeSaturday: false,
-    includeSunday: false,
-    projectType: '',
-    classification: '',
-    active: true
+  name: '',
+  customId: '',
+  startDate: '', // String vacío para input type="date"
+  endDate: '', // String vacío para input type="date"
+  estimatedBudget: 0,
+  classificationId: 0, // 0 para mostrar "Elige una opción"
+  objective: '',
+  scope: '',
+  leaderId: '0', // '0' para mostrar "Elige una opción"
+  sponsorId: '0', // '0' para mostrar "Elige una opción"
+  projectManagerId: '0', // '0' para mostrar "Elige una opción" (opcional)
+  processManagerId: '0', // '0' para mostrar "Elige una opción" (opcional)
+  areaId: 0, // 0 para mostrar "Elige una opción"
+  categoryId: 0, // 0 para mostrar "Elige una opción"
+  adminIds: [],
+  isSubproject: false,
+  parentProjectId: null,
+  includeSaturday: false,
+  includeSunday: false,
+  isInvestmentType: false,
+  useTemplate: false,
+  templateId: null,
+  useInitiative: false,
+  initiativeId: null,
+  active: true,
 }
-
-// Mock data
-const mockUsers = {
-    leaders: [
-        { id: '1', name: 'Juan Pérez' },
-        { id: '2', name: 'María García' }
-    ],
-    sponsors: [
-        { id: '3', name: 'Carlos López' },
-        { id: '4', name: 'Ana Martínez' }
-    ],
-    projectManagers: [
-        { id: '5', name: 'Pedro Sánchez' },
-        { id: '6', name: 'Laura Rodríguez' }
-    ],
-    processManagers: [
-        { id: '7', name: 'Miguel Torres' },
-        { id: '8', name: 'Isabel Fernández' }
-    ],
-    admins: [
-        { id: '9', name: 'Roberto Gómez' },
-        { id: '10', name: 'Carmen Ruiz' },
-        { id: '11', name: 'Francisco Díaz' },
-        { id: '12', name: 'Aracely García' },
-        { id: '13', name: 'Alicia Carrillo' },
-        { id: '14', name: 'Jorge Sánchez' },
-        { id: '15', name: 'Raúl War' },
-        { id: '16', name: 'David Favela' },
-        { id: '17', name: 'María López' },
-        { id: '18', name: 'Carlos Mendoza' },
-        { id: '19', name: 'Ana Torres' },
-        { id: '20', name: 'Luis Ramírez' }
-    ]
-}
-
-const mockAreas: AreaType[] = [
-    { id: '1', name: 'Tecnología', categories: ['Desarrollo', 'Infraestructura', 'Seguridad'] },
-    { id: '2', name: 'Marketing', categories: ['Digital', 'Tradicional', 'Eventos'] },
-    { id: '3', name: 'Recursos Humanos', categories: ['Reclutamiento', 'Capacitación', 'Bienestar'] }
-]
-
-const mockClassifications = ['Estratégico', 'Operacional', 'Táctico']
-
-const mockProjects = [
-    { id: 'PRJ-001', name: 'Sistema CRM' },
-    { id: 'PRJ-002', name: 'Portal Web' }
-]
 
 const useProjectStore = defineStore('project-store', {
-    state: () => ({
-        selectedProject: initialProject as ProjectType,
-        projects: [] as ProjectType[],
-        users: mockUsers,
-        areas: mockAreas,
-        classifications: mockClassifications,
-        parentProjects: mockProjects,
-        selectedCategories: [] as string[],
-        showTemplateModal: false,
-        showImportModal: false,
-        modalId: 'project-modal'
-    }),
-    actions: {
-        setData(data: ProjectType = initialProject) {
-            this.selectedProject = data
-        },
-        setProjects(projects: ProjectType[]) {
-            this.projects = projects
-        },
-        updateField(field: keyof ProjectType, value: any) {
-            (this.selectedProject as any)[field] = value
-        },
-        toggleAdmin(adminId: string) {
-            const index = this.selectedProject.additionalAdmins.indexOf(adminId)
-            if (index > -1) {
-                this.selectedProject.additionalAdmins.splice(index, 1)
-            } else {
-                this.selectedProject.additionalAdmins.push(adminId)
-            }
-        },
-        updateCategoriesByArea(areaId: string) {
-            const area = this.areas.find(a => a.id === areaId)
-            this.selectedCategories = area?.categories || []
-            this.selectedProject.category = ''
-        },
-        resetForm() {
-            this.selectedProject = { ...initialProject }
-            this.selectedCategories = []
-        },
-        setShowTemplateModal(show: boolean) {
-            this.showTemplateModal = show
-        },
-        setShowImportModal(show: boolean) {
-            this.showImportModal = show
-        },
-        loadFromSOW() {
-            const savedSOWs = localStorage.getItem('sow_documents')
-            if (savedSOWs) {
-                const sows = JSON.parse(savedSOWs)
-                if (sows.length > 0) {
-                    const latestSOW = sows[sows.length - 1]
-                    this.selectedProject.name = latestSOW.projectName || ''
-                    this.selectedProject.budget = latestSOW.budget || ''
-                    this.selectedProject.projectId = latestSOW.projectId || ''
-                    this.selectedProject.objective = latestSOW.projectObjective || ''
-                    this.selectedProject.scope = latestSOW.projectScope || ''
-                }
-            }
+  state: () => ({
+    // Proyecto actual
+    selectedProject: { ...initialProject } as ProjectType,
+
+    // Opciones para los selects (cargadas desde el API)
+    classifications: [] as OptionType[],
+    areas: [] as OptionType[],
+    leaders: [] as OptionType[],
+    sponsors: [] as OptionType[],
+    projectManagers: [] as OptionType[],
+    processManagers: [] as OptionType[],
+    admins: [] as OptionType[],
+    categories: [] as OptionType[],
+    parentProjects: [] as OptionType[],
+    templates: [] as OptionType[],
+
+    // Estado de carga
+    isLoading: false,
+    isLoadingCategories: false,
+    isLoadingParentProjects: false,
+    isLoadingTemplates: false,
+
+    // Plantilla seleccionada
+    selectedTemplate: null as { dni: number | string; label: string } | null,
+
+    // Modales
+    showTemplateModal: false,
+    showImportModal: false,
+    modalId: 'project-modal',
+    templateModalId: 'template-modal',
+  }),
+  actions: {
+    /**
+     * Set the selected project data
+     */
+    setData(data: ProjectType = initialProject) {
+      this.selectedProject = { ...data }
+    },
+
+    /**
+     * Update a specific field of the selected project
+     */
+    updateField(field: keyof ProjectType, value: any) {
+      ;(this.selectedProject as any)[field] = value
+    },
+
+    /**
+     * Toggle an admin in the adminIds array
+     */
+    toggleAdmin(adminId: string) {
+      const index = this.selectedProject.adminIds.indexOf(adminId)
+      if (index > -1) {
+        this.selectedProject.adminIds.splice(index, 1)
+      } else {
+        this.selectedProject.adminIds.push(adminId)
+      }
+    },
+
+    /**
+     * Reset the form to initial state
+     */
+    resetForm() {
+      this.selectedProject = { ...initialProject }
+      this.categories = []
+    },
+
+    /**
+     * Set the form data options from API response
+     */
+    setFormDataOptions(data: {
+      clasificaciones: OptionType[]
+      areas: OptionType[]
+      lideres: OptionType[]
+      sponsors: OptionType[]
+      projectManagers: OptionType[]
+      procesos: OptionType[]
+      administradores: OptionType[]
+    }) {
+      this.classifications = data.clasificaciones
+      this.areas = data.areas
+      this.leaders = data.lideres
+      this.sponsors = data.sponsors
+      this.projectManagers = data.projectManagers
+      this.processManagers = data.procesos
+      this.admins = data.administradores
+    },
+
+    /**
+     * Set category options for the selected area
+     */
+    setCategories(categories: OptionType[]) {
+      this.categories = categories
+    },
+
+    /**
+     * Clear categories when area changes
+     */
+    clearCategories() {
+      this.categories = []
+      this.selectedProject.categoryId = 0
+    },
+
+    /**
+     * Set parent project options
+     */
+    setParentProjects(projects: OptionType[]) {
+      this.parentProjects = projects
+    },
+
+    /**
+     * Clear parent projects
+     */
+    clearParentProjects() {
+      this.parentProjects = []
+      this.selectedProject.parentProjectId = null
+    },
+
+    /**
+     * Set template options
+     */
+    setTemplates(templates: OptionType[]) {
+      this.templates = templates
+    },
+
+    /**
+     * Set selected template
+     */
+    setSelectedTemplate(template: { dni: number | string; label: string } | null) {
+      this.selectedTemplate = template
+    },
+
+    /**
+     * Clear selected template
+     */
+    clearSelectedTemplate() {
+      this.selectedTemplate = null
+      this.selectedProject.useTemplate = false
+      this.selectedProject.templateId = null
+    },
+
+    /**
+     * Set template modal visibility
+     */
+    setShowTemplateModal(show: boolean) {
+      this.showTemplateModal = show
+    },
+
+    /**
+     * Set import modal visibility
+     */
+    setShowImportModal(show: boolean) {
+      this.showImportModal = show
+    },
+
+    /**
+     * Load project data from SOW (Statement of Work) if available
+     */
+    loadFromSOW() {
+      const savedSOWs = localStorage.getItem('sow_documents')
+      if (savedSOWs) {
+        const sows = JSON.parse(savedSOWs)
+        if (sows.length > 0) {
+          const latestSOW = sows[sows.length - 1]
+          this.selectedProject.name = latestSOW.projectName || ''
+          this.selectedProject.estimatedBudget = parseFloat(latestSOW.budget) || 0
+          this.selectedProject.customId = latestSOW.projectId || ''
+          this.selectedProject.objective = latestSOW.projectObjective || ''
+          this.selectedProject.scope = latestSOW.projectScope || ''
         }
-    }
+      }
+    },
+  },
 })
 
 export default useProjectStore
