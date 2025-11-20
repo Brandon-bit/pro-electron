@@ -1,25 +1,89 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
-import type { MinuteType } from '@/modules/GestionDeProyectos/Operacion/Minutas/types/minuteTypes'
-import { useMinuteActions } from '@/modules/GestionDeProyectos/Operacion/Minutas/composables/useMinuteActions'
+import { useModalStore } from '@/shared/stores/modal.store'
+import useMinuteStore from '@/modules/GestionDeProyectos/Operacion/Minutas/store/minuteStore'
+import type { MinuteType, AgreedActionType } from '@/modules/GestionDeProyectos/Operacion/Minutas/types/minuteTypes'
 
 const props = defineProps<{
     minute: MinuteType
 }>()
 
-const emit = defineEmits<{
-    edit: [id: string]
-    addAction: [id: string]
-    editAction: [minuteId: string, action: any]
-    delete: [id: string]
-    distribute: [id: string]
-}>()
+const modalStore = useModalStore()
+const minuteStore = useMinuteStore()
 
-const { getActionStatusColor } = useMinuteActions()
+const handleEditMinute = () => {
+    minuteStore.setSelectedMinute(props.minute)
+    modalStore.open(minuteStore.minuteModalId, {
+        title: 'Editar Minuta',
+        type: 'UPDATE'
+    })
+}
 
-const handleDistribute = () => {
-    emit('distribute', props.minute.id)
+const handleDeleteMinute = () => {
+    minuteStore.setSelectedMinute(props.minute)
+    modalStore.open(minuteStore.minuteModalId, {
+        title: 'Eliminar Minuta',
+        type: 'DELETE',
+        submitText: 'Eliminar'
+    })
+}
+
+const handleAddAttendee = () => {
+    minuteStore.setSelectedMinute(props.minute)
+    modalStore.open(minuteStore.attendeeModalId, {
+        title: 'Agregar Asistente',
+        type: 'CREATE',
+        submitText: 'Agregar'
+    })
+}
+
+const handleDeleteAttendee = (attendeeDni: string) => {
+    minuteStore.setSelectedMinute(props.minute)
+    // Set the selected user dni in the modal
+    modalStore.open(minuteStore.attendeeModalId, {
+        title: 'Eliminar Asistente',
+        type: 'DELETE',
+        submitText: 'Eliminar',
+        data: { userDni: attendeeDni }
+    })
+}
+
+const handleAddAgreedAction = () => {
+    minuteStore.setSelectedMinute(props.minute)
+    modalStore.open(minuteStore.agreedActionModalId, {
+        title: 'Agregar Acción Acordada',
+        type: 'CREATE',
+        submitText: 'Agregar'
+    })
+}
+
+const handleEditAgreedAction = (action: AgreedActionType) => {
+    minuteStore.setSelectedMinute(props.minute)
+    modalStore.open(minuteStore.agreedActionModalId, {
+        title: 'Editar Acción Acordada',
+        type: 'UPDATE',
+        submitText: 'Actualizar',
+        data: { action }
+    })
+}
+
+const handleDeleteAgreedAction = (action: AgreedActionType) => {
+    minuteStore.setSelectedMinute(props.minute)
+    modalStore.open(minuteStore.agreedActionModalId, {
+        title: 'Eliminar Acción Acordada',
+        type: 'DELETE',
+        submitText: 'Eliminar',
+        data: { action }
+    })
+}
+
+const getStatusBadgeClass = (statusName: string): string => {
+    const statusMap: Record<string, string> = {
+        'En Tiempo': 'badge-success',
+        'Por Vencer': 'badge-warning',
+        'Vencida': 'badge-error',
+        'Completada': 'badge-info'
+    }
+    return statusMap[statusName] || 'badge-ghost'
 }
 </script>
 
@@ -27,60 +91,66 @@ const handleDistribute = () => {
     <div class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow">
         <input type="checkbox" class="peer" />
         
-        <!-- Trigger del Accordion -->
+        <!-- Accordion Header -->
         <div class="collapse-title">
             <div class="flex items-center justify-between gap-4">
-                <!-- Información principal -->
                 <div class="flex items-center gap-3 flex-1 min-w-0">
                     <span class="material-symbols-outlined text-primary">description</span>
                     <div class="flex-1 min-w-0">
-                        <h3 class="font-semibold text-base truncate">{{ minute.title }}</h3>
+                        <h3 class="font-semibold text-base truncate">{{ minute.name }}</h3>
                     </div>
                 </div>
                 
-                <!-- Badges de estado y fecha -->
                 <div class="flex items-center gap-2 shrink-0">
-                    <span v-if="minute.distributed" class="badge badge-success badge-sm gap-1">
-                        <span class="material-symbols-outlined text-xs">send</span>
-                        Distribuida
+                    <span class="badge badge-sm gap-1">
+                        <span class="material-symbols-outlined text-xs">event</span>
+                        {{ new Date(minute.date).toLocaleDateString() }}
                     </span>
-                    <span v-else class="badge badge-warning badge-sm gap-1">
-                        <span class="material-symbols-outlined text-xs">schedule</span>
-                        Pendiente
-                    </span>
-                    <div class="flex items-center gap-1 text-sm opacity-70">
-                        <span class="material-symbols-outlined text-sm">event</span>
-                        <span>{{ minute.date }}</span>
-                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Body del Accordion -->
+        <!-- Accordion Body -->
         <div class="collapse-content">
             <div class="space-y-4 pt-2">
-                <!-- Hora -->
+                <!-- Date and Time -->
                 <div class="flex items-center gap-2 text-sm opacity-70">
                     <span class="material-symbols-outlined text-sm">schedule</span>
-                    <span>{{ minute.time }}</span>
+                    <span>{{ new Date(minute.date).toLocaleString() }}</span>
                 </div>
 
-                <!-- Asistentes y Ausentes -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm font-semibold mb-2 flex items-center gap-1">
+                <!-- Attendees -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-sm">group</span>
                             Asistentes:
                         </p>
-                        <div class="flex flex-wrap gap-1">
-                            <span 
-                                v-for="(att, idx) in minute.attendees" 
-                                :key="idx" 
-                                class="badge badge-secondary text-xs gap-1"
+                        <button
+                            type="button"
+                            class="btn btn-ghost btn-xs text-primary"
+                            @click.stop="handleAddAttendee"
+                            title="Agregar asistente"
+                        >
+                            <span class="material-symbols-outlined text-sm">person_add</span>
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <div
+                            v-for="attendee in minute.attendees"
+                            :key="attendee.dni"
+                            class="badge badge-secondary text-xs gap-1 group relative"
+                        >
+                            <span class="material-symbols-outlined text-xs">person</span>
+                            {{ attendee.name }}
+                            <button
+                                type="button"
+                                class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                @click.stop="handleDeleteAttendee(attendee.dni)"
+                                title="Eliminar asistente"
                             >
-                                <span class="material-symbols-outlined text-xs">person</span>
-                                {{ att }}
-                            </span>
+                                <span class="material-symbols-outlined text-xs">close</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -94,58 +164,75 @@ const handleDistribute = () => {
                     <pre class="text-sm opacity-70 whitespace-pre-wrap font-sans bg-base-200 p-3 rounded-lg">{{ minute.agenda }}</pre>
                 </div>
 
-                <!-- Discusión -->
+                <!-- Discussion Points -->
                 <div>
                     <p class="text-sm font-semibold mb-1 flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">forum</span>
-                        Discusión:
+                        Puntos Discutidos:
                     </p>
-                    <p class="text-sm opacity-70 bg-base-200 p-3 rounded-lg">{{ minute.discussion }}</p>
+                    <p class="text-sm opacity-70 bg-base-200 p-3 rounded-lg">{{ minute.discussionPoints }}</p>
                 </div>
 
-                <!-- Decisiones -->
+                <!-- Decisions Made -->
                 <div>
                     <p class="text-sm font-semibold mb-1 flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">gavel</span>
-                        Decisiones:
+                        Decisiones Tomadas:
                     </p>
-                    <pre class="text-sm opacity-70 whitespace-pre-wrap font-sans bg-base-200 p-3 rounded-lg">{{ minute.decisions }}</pre>
+                    <pre class="text-sm opacity-70 whitespace-pre-wrap font-sans bg-base-200 p-3 rounded-lg">{{ minute.decisionsMade }}</pre>
                 </div>
 
-                <!-- Acciones Acordadas -->
-                <div v-if="minute.actionItems.length > 0">
-                    <p class="text-sm font-semibold mb-2 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-sm">check_box</span>
-                        Acciones Acordadas:
-                    </p>
-                    <div class="space-y-2">
-                        <button
-                            v-for="action in minute.actionItems" 
-                            :key="action.id"
-                            type="button"
-                            class="flex items-center justify-between p-3 border rounded-lg bg-base-200 hover:bg-base-300 transition-colors cursor-pointer w-full text-left"
-                            @click.stop="emit('editAction', minute.id, action)"
+                <!-- Agreed Actions -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-semibold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">check_box</span>
+                            Acciones Acordadas:
+                        </p>
+                    </div>
+                    <div v-if="minute.agreedActions.length > 0" class="space-y-2">
+                        <div
+                            v-for="action in minute.agreedActions"
+                            :key="action.dni"
+                            class="flex items-center justify-between p-3 border rounded-lg bg-base-200 hover:bg-base-300 transition-colors group"
                         >
-                            <div class="flex-1">
+                            <div class="flex-1 cursor-pointer" @click="handleEditAgreedAction(action)">
                                 <p class="font-medium text-sm">{{ action.description }}</p>
                                 <p class="text-xs opacity-70 mt-1">
-                                    Responsable: {{ action.responsible }} • Fecha límite: {{ action.dueDate }}
+                                    Responsable: {{ action.responsible.name }} • 
+                                    Fecha límite: {{ new Date(action.dueDate).toLocaleDateString() }}
                                 </p>
                             </div>
-                            <span :class="['badge badge-sm', getActionStatusColor(action.status)]">
-                                {{ action.status }}
-                            </span>
-                        </button>
+                            <div class="flex items-center gap-2">
+                                <span 
+                                    :class="['badge badge-sm', getStatusBadgeClass(action.status.name)]"
+                                    :style="{ backgroundColor: action.status.color }"
+                                >
+                                    {{ action.status.name }}
+                                </span>
+                                <button
+                                    type="button"
+                                    class="btn btn-ghost btn-xs text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                                    @click.stop="handleDeleteAgreedAction(action)"
+                                    title="Eliminar acción"
+                                >
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="text-sm opacity-50 italic">
+                        No hay acciones acordadas registradas
                     </div>
                 </div>
 
-                <!-- Botones de acción -->
+                <!-- Action Buttons -->
                 <div class="flex items-center justify-between gap-2 pt-4 border-t">
                     <div class="flex gap-2">
                         <button
                             type="button"
                             class="btn btn-ghost btn-sm"
-                            @click.stop="emit('edit', minute.id)"
+                            @click.stop="handleEditMinute"
                             title="Editar minuta"
                         >
                             <span class="material-symbols-outlined">edit</span>
@@ -153,7 +240,7 @@ const handleDistribute = () => {
                         <button
                             type="button"
                             class="btn btn-ghost btn-sm text-primary"
-                            @click.stop="emit('addAction', minute.id)"
+                            @click.stop="handleAddAgreedAction"
                             title="Agregar acción"
                         >
                             <span class="material-symbols-outlined">add_task</span>
@@ -161,21 +248,12 @@ const handleDistribute = () => {
                         <button
                             type="button"
                             class="btn btn-ghost btn-sm text-error"
-                            @click.stop="emit('delete', minute.id)"
+                            @click.stop="handleDeleteMinute"
                             title="Eliminar minuta"
                         >
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
-                    
-                    <BaseButton
-                        v-if="!minute.distributed"
-                        text="Distribuir"
-                        icon="send"
-                        variant="primary"
-                        class-name="btn-sm"
-                        @click="handleDistribute"
-                    />
                 </div>
             </div>
         </div>
@@ -191,7 +269,6 @@ const handleDistribute = () => {
     padding: 0 1.5rem 1rem 1.5rem;
 }
 
-/* Animación suave para el accordion */
 .collapse:not(.collapse-close) input[type="checkbox"]:checked ~ .collapse-content {
     animation: slideDown 0.3s ease-out;
 }

@@ -1,5 +1,13 @@
 Necesito que me ayudes a implementar la funcionalidad real en este apartado, actualmente funciona con mock data, pero te explicare como deberia de funcionar y te pasare los endpoints necesarios para que puedas implementar los services, los composables, los types, las validations, los componentes que consideres necesarios, el store, etc. Puedes tomar los siguientes apartados como referencia ya que esos ya funcionan al 100%
 
+Necesito que revises bien la implementacion de los modales, la forma correcta es la siguiente, como aqui se trabajaran 3 cruds distintos (Minutas, Acciones acordadas, Asistentes) cada uno tendra su componente de modal, y ya dependiendo de la accion se renderiza el cuerpo de ese modal, por ejemplo, supongamos que trabajamos con las minutas, los componentes serian los siguientes
+
+- MinuteModal -> Este es el modal principal que se encarga de abrir y cerrar los modales
+- AddEditMinuteForm -> Este es el cuerpo del formulario que se encarga de agregar y editar minutas
+- DeleteMinute -> Este es el cuerpo que se encarga de mostrar el mensaje de confirmacion al usuario al eliminar minutas
+
+Revisa las referencias que te indique para mayor contexto y todo el codigo generado debera de ser en ingles.
+
 1.- El usuairio entra a la vista y tendra cargado solamente el select con las opciones de los proyectos, para obtener las opciones esta el siguiente endpoint
 
 * METODO: GET
@@ -383,5 +391,6 @@ public class AccionAcordadaRequest
         "totalItems": 1
     }
 }
+
 
 

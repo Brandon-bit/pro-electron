@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia'
-import type { MinuteType, NewMinuteType, ActionItemWithMinute, ProjectOptionType } from '@/modules/GestionDeProyectos/Operacion/Minutas/types/minuteTypes'
+import type { 
+    MinuteType, 
+    ProjectOptionType, 
+    ParticipantType,
+    AgreedActionType,
+    AgreedActionWithMinuteType
+} from '@/modules/GestionDeProyectos/Operacion/Minutas/types/minuteTypes'
 
 const useMinuteStore = defineStore('minute-store', {
     state: () => ({
@@ -8,35 +14,20 @@ const useMinuteStore = defineStore('minute-store', {
         selectedProject: null as ProjectOptionType | null,
         
         // Minutes
-        minutes: [
-            {
-                id: 'MIN001',
-                projectId: 1,
-                title: 'Reunión de Kickoff - Proyecto ERP',
-                date: '2024-01-20',
-                time: '10:00 - 11:30',
-                attendees: ['Juan Pérez (PM)', 'María García', 'Carlos López', 'Ana Martínez'],
-                absentees: ['Roberto Sánchez'],
-                agenda: '1. Presentación del proyecto\n2. Definición de roles y responsabilidades\n3. Revisión del cronograma inicial\n4. Próximos pasos',
-                discussion: 'Se presentó el alcance general del proyecto ERP. Se discutió la estrategia de implementación por fases y la importancia de la gestión del cambio.',
-                decisions: 'D1: Implementación será en 3 fases\nD2: Sesiones semanales de seguimiento los lunes 9am\nD3: Plan de comunicación será responsabilidad de Ana',
-                actionItems: [
-                    { id: 'AI001', description: 'Preparar plan detallado de proyecto', responsible: 'Juan Pérez', dueDate: '2024-01-27', status: 'En Progreso' as const },
-                    { id: 'AI002', description: 'Identificar stakeholders clave', responsible: 'María García', dueDate: '2024-01-25', status: 'Completada' as const }
-                ],
-                distributed: true
-            }
-        ] as MinuteType[],
+        minutes: [] as MinuteType[],
+        selectedMinute: null as MinuteType | null,
+        
+        // Participants (cached for selects)
+        participants: [] as ParticipantType[],
         
         // Loading & Error
         isLoading: false,
         error: null as string | null,
         
-        // Modal
-        isModalOpen: false,
-        isActionModalOpen: false,
-        selectedMinuteId: null as string | null,
-        selectedAction: null as any | null,
+        // Modal IDs
+        minuteModalId: 'minute-modal',
+        attendeeModalId: 'attendee-modal',
+        agreedActionModalId: 'agreed-action-modal',
     }),
     actions: {
         // Projects
@@ -46,6 +37,8 @@ const useMinuteStore = defineStore('minute-store', {
         
         setSelectedProject(project: ProjectOptionType | null) {
             this.selectedProject = project
+            // Clear minutes when changing project
+            this.minutes = []
         },
         
         // Minutes
@@ -53,117 +46,108 @@ const useMinuteStore = defineStore('minute-store', {
             this.minutes = minutes
         },
         
-        addMinute(newMinute: NewMinuteType) {
-            const minute: MinuteType = {
-                id: `MIN${String(this.minutes.length + 1).padStart(3, '0')}`,
-                ...newMinute
-            }
+        addMinute(minute: MinuteType) {
             this.minutes.push(minute)
         },
         
-        updateMinute(id: string, updatedMinute: Partial<MinuteType>) {
-            const index = this.minutes.findIndex(m => m.id === id)
+        updateMinute(dni: string, updatedMinute: Partial<MinuteType>) {
+            const index = this.minutes.findIndex(m => m.dni === dni)
             if (index !== -1) {
                 this.minutes[index] = { ...this.minutes[index], ...updatedMinute }
             }
         },
         
-        deleteMinute(id: string) {
-            const index = this.minutes.findIndex(m => m.id === id)
+        deleteMinute(dni: string) {
+            const index = this.minutes.findIndex(m => m.dni === dni)
             if (index !== -1) {
                 this.minutes.splice(index, 1)
             }
         },
         
-        distributeMinute(id: string) {
-            const index = this.minutes.findIndex(m => m.id === id)
-            if (index !== -1) {
-                this.minutes[index].distributed = true
+        setSelectedMinute(minute: MinuteType | null) {
+            this.selectedMinute = minute
+        },
+        
+        clearSelectedMinute() {
+            this.selectedMinute = null
+        },
+        
+        // Participants
+        setParticipants(participants: ParticipantType[]) {
+            this.participants = participants
+        },
+        
+        // Attendees
+        addAttendeeToMinute(minuteDni: string, attendee: ParticipantType) {
+            const minute = this.minutes.find(m => m.dni === minuteDni)
+            if (minute) {
+                minute.attendees.push(attendee)
             }
         },
         
-        // Actions
-        addActionToMinute(minuteId: string, action: { description: string; responsible: string; dueDate: string }) {
-            const minute = this.minutes.find(m => m.id === minuteId)
+        removeAttendeeFromMinute(minuteDni: string, attendeeDni: string) {
+            const minute = this.minutes.find(m => m.dni === minuteDni)
             if (minute) {
-                const newAction = {
-                    id: `AI${String(minute.actionItems.length + 1).padStart(3, '0')}`,
-                    ...action,
-                    status: 'Pendiente' as const
-                }
-                minute.actionItems.push(newAction)
+                minute.attendees = minute.attendees.filter(a => a.dni !== attendeeDni)
             }
         },
         
-        updateActionInMinute(minuteId: string, actionId: string, updatedAction: { description: string; responsible: string; dueDate: string }) {
-            const minute = this.minutes.find(m => m.id === minuteId)
+        // Agreed Actions
+        addAgreedActionToMinute(minuteDni: string, action: AgreedActionType) {
+            const minute = this.minutes.find(m => m.dni === minuteDni)
             if (minute) {
-                const actionIndex = minute.actionItems.findIndex(a => a.id === actionId)
+                minute.agreedActions.push(action)
+            }
+        },
+        
+        updateAgreedActionInMinute(minuteDni: string, actionDni: number, updatedAction: Partial<AgreedActionType>) {
+            const minute = this.minutes.find(m => m.dni === minuteDni)
+            if (minute) {
+                const actionIndex = minute.agreedActions.findIndex(a => a.dni === actionDni)
                 if (actionIndex !== -1) {
-                    minute.actionItems[actionIndex] = {
-                        ...minute.actionItems[actionIndex],
+                    minute.agreedActions[actionIndex] = {
+                        ...minute.agreedActions[actionIndex],
                         ...updatedAction
                     }
                 }
             }
         },
         
-        // Modal
-        openModal() {
-            this.isModalOpen = true
+        deleteAgreedActionFromMinute(minuteDni: string, actionDni: number) {
+            const minute = this.minutes.find(m => m.dni === minuteDni)
+            if (minute) {
+                minute.agreedActions = minute.agreedActions.filter(a => a.dni !== actionDni)
+            }
         },
         
-        closeModal() {
-            this.isModalOpen = false
+        // Loading & Error
+        setLoading(loading: boolean) {
+            this.isLoading = loading
         },
         
-        openActionModal(minuteId: string, action: any = null) {
-            this.selectedMinuteId = minuteId
-            this.selectedAction = action
-            this.isActionModalOpen = true
-        },
-        
-        closeActionModal() {
-            this.selectedMinuteId = null
-            this.selectedAction = null
-            this.isActionModalOpen = false
+        setError(error: string | null) {
+            this.error = error
         }
     },
     getters: {
-        // Filtrar minutas por proyecto seleccionado
-        filteredMinutes: (state): MinuteType[] => {
-            if (!state.selectedProject) return []
-            return state.minutes.filter(m => m.projectId === state.selectedProject?.dni)
-        },
-        
-        // Todas las acciones del proyecto seleccionado
-        allActionItems: (state): ActionItemWithMinute[] => {
-            const minutes = state.selectedProject 
-                ? state.minutes.filter(m => m.projectId === state.selectedProject?.dni)
-                : state.minutes
-            
-            return minutes.flatMap(m =>
-                m.actionItems.map(ai => ({
-                    ...ai,
-                    minuteId: m.id,
-                    minuteTitle: m.title
+        // All agreed actions from all minutes (for table)
+        allAgreedActions: (state): AgreedActionWithMinuteType[] => {
+            return state.minutes.flatMap(m =>
+                m.agreedActions.map(action => ({
+                    ...action,
+                    minuteName: m.name
                 }))
             )
         },
         
-        // Acciones pendientes del proyecto seleccionado
-        pendingActions: (state): ActionItemWithMinute[] => {
-            const minutes = state.selectedProject 
-                ? state.minutes.filter(m => m.projectId === state.selectedProject?.dni)
-                : state.minutes
-            
-            return minutes.flatMap(m =>
-                m.actionItems
-                    .filter(ai => ai.status !== 'Completada')
-                    .map(ai => ({
-                        ...ai,
-                        minuteId: m.id,
-                        minuteTitle: m.title
+        // Pending agreed actions (status not completed)
+        pendingAgreedActions: (state): AgreedActionWithMinuteType[] => {
+            return state.minutes.flatMap(m =>
+                m.agreedActions
+                    .filter(action => action.status.name !== 'Completada')
+                    .map(action => ({
+                        ...action,
+                        minuteName: m.name
                     }))
             )
         }

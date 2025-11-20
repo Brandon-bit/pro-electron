@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
-import CreateMinuteModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/CreateMinuteModal.vue'
-import ActionsTable from '@/modules/GestionDeProyectos/Operacion/Minutas/components/ActionsTable.vue'
 import MinuteAccordion from '@/modules/GestionDeProyectos/Operacion/Minutas/components/MinuteAccordion.vue'
-import AddActionModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/AddActionModal.vue'
+import ActionsTable from '@/modules/GestionDeProyectos/Operacion/Minutas/components/ActionsTable.vue'
+import MinuteModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/MinuteModal.vue'
+import AttendeeModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/AttendeeModal.vue'
+import AgreedActionModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/AgreedActionModal.vue'
 import useMinuteStore from '@/modules/GestionDeProyectos/Operacion/Minutas/store/minuteStore'
 import { useMinuteActions } from '@/modules/GestionDeProyectos/Operacion/Minutas/composables/useMinuteActions'
-import { showNotification } from '@/utils/toastNotifications'
+import { useModalStore } from '@/shared/stores/modal.store'
 
 const minuteStore = useMinuteStore()
-const { loadMinutes, loadProjects, saveMinutes, handleDistribute } = useMinuteActions()
+const modalStore = useModalStore()
+const { loadProjects, loadMinutes, loadParticipants } = useMinuteActions()
 
 const activeTab = ref<'minutes' | 'actions'>('minutes')
 
-// Opciones para el selector de proyectos
+// Computed for project select options
 const projectsOptions = computed(() => 
     minuteStore.projectsOptions.map(p => ({
         value: p.dni,
@@ -23,50 +25,41 @@ const projectsOptions = computed(() =>
     }))
 )
 
-const selectedProjectId = computed({
+// Selected project with getter/setter
+const selectedProjectDni = computed({
     get: () => minuteStore.selectedProject?.dni || null,
-    set: (value: number | null) => {
+    set: async (value: string | null) => {
         if (value) {
             const project = minuteStore.projectsOptions.find(p => p.dni === value)
             minuteStore.setSelectedProject(project || null)
+            
+            // Load minutes for selected project
+            if (project) {
+                await loadMinutes(project.dni)
+            }
         } else {
             minuteStore.setSelectedProject(null)
         }
     }
 })
 
-// Handlers para las acciones de las minutas
-const handleEditMinute = (id: string) => {
-    // TODO: Implementar edición de minuta
-    showNotification('Funcionalidad de edición en desarrollo', 'info')
-}
-
-const handleDeleteMinute = (id: string) => {
-    if (confirm('¿Estás seguro de eliminar esta minuta?')) {
-        minuteStore.deleteMinute(id)
-        showNotification('Minuta eliminada exitosamente', 'success')
-    }
-}
-
-const handleDistributeMinute = (id: string) => {
-    handleDistribute(id)
-}
-
-const handleAddAction = (minuteId: string) => {
-    minuteStore.openActionModal(minuteId)
-}
-
-const handleEditAction = (minuteId: string, action: any) => {
-    minuteStore.openActionModal(minuteId, action)
-}
-
 const handleTabChange = (tab: 'minutes' | 'actions') => {
     activeTab.value = tab
 }
 
+const handleCreateMinute = () => {
+    minuteStore.clearSelectedMinute()
+    modalStore.open(minuteStore.minuteModalId, {
+        title: 'Nueva Minuta',
+        type: 'CREATE',
+        submitText: 'Crear'
+    })
+}
+
 onMounted(async () => {
-    loadMinutes()
+    // Load initial data
     await loadProjects()
+    await loadParticipants()
 })
 </script>
 
@@ -78,7 +71,7 @@ onMounted(async () => {
             subtitle="Registro de reuniones, decisiones y acciones del proyecto"
         />
 
-        <!-- Selector de Proyecto -->
+        <!-- Project Selector -->
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <h3 class="card-title text-lg mb-4">Seleccionar Proyecto</h3>
@@ -87,7 +80,7 @@ onMounted(async () => {
                         <span class="label-text">Proyecto</span>
                     </label>
                     <select 
-                        v-model="selectedProjectId" 
+                        v-model="selectedProjectDni" 
                         class="select select-bordered w-full"
                         :disabled="minuteStore.isLoading"
                     >
@@ -109,7 +102,7 @@ onMounted(async () => {
             <span class="loading loading-spinner loading-lg"></span>
         </div>
 
-        <!-- Estado vacío: sin proyecto seleccionado -->
+        <!-- Empty state: no project selected -->
         <div v-else-if="!minuteStore.selectedProject" class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <div class="flex flex-col items-center justify-center py-12 text-center">
@@ -122,9 +115,9 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- Vista principal con proyecto seleccionado -->
+        <!-- Main view with selected project -->
         <template v-else>
-            <!-- Botones de acción -->
+            <!-- Action buttons -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">folder_open</span>
@@ -132,16 +125,10 @@ onMounted(async () => {
                 </div>
                 <div class="flex gap-2">
                     <BaseButton
-                        text="Guardar"
-                        icon="save"
-                        variant="outline"
-                        @click="saveMinutes"
-                    />
-                    <BaseButton
                         text="Nueva Minuta"
                         icon="add"
                         variant="primary"
-                        @click="minuteStore.openModal()"
+                        @click="handleCreateMinute"
                     />
                 </div>
             </div>
@@ -165,23 +152,18 @@ onMounted(async () => {
                 </button>
             </div>
 
-            <!-- Tab: Minutas -->
+            <!-- Tab: Minutes -->
             <section v-if="activeTab === 'minutes'" class="space-y-4">
-                <!-- Lista de minutas en accordions -->
-                <div v-if="minuteStore.filteredMinutes.length > 0" class="space-y-3">
+                <!-- List of minutes in accordions -->
+                <div v-if="minuteStore.minutes.length > 0" class="space-y-3">
                     <MinuteAccordion
-                        v-for="minute in minuteStore.filteredMinutes"
-                        :key="minute.id"
+                        v-for="minute in minuteStore.minutes"
+                        :key="minute.dni"
                         :minute="minute"
-                        @edit="handleEditMinute"
-                        @add-action="handleAddAction"
-                        @edit-action="handleEditAction"
-                        @delete="handleDeleteMinute"
-                        @distribute="handleDistributeMinute"
                     />
                 </div>
 
-                <!-- Estado vacío: sin minutas -->
+                <!-- Empty state: no minutes -->
                 <div v-else class="card bg-base-100 shadow-xl">
                     <div class="card-body">
                         <div class="flex flex-col items-center justify-center py-12 text-center">
@@ -194,22 +176,23 @@ onMounted(async () => {
                                 text="Crear Primera Minuta"
                                 icon="add"
                                 variant="primary"
-                                @click="minuteStore.openModal()"
+                                @click="handleCreateMinute"
                             />
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Tab: Acciones Pendientes -->
+            <!-- Tab: Pending Actions -->
             <section v-else class="space-y-4">
                 <ActionsTable />
             </section>
         </template>
 
         <!-- Modals -->
-        <CreateMinuteModal />
-        <AddActionModal />
+        <MinuteModal />
+        <AttendeeModal />
+        <AgreedActionModal />
     </div>
 </template>
 
