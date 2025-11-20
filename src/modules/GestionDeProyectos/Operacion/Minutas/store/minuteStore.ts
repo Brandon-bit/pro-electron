@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia'
-import type { MinuteType, NewMinuteType, ActionItemWithMinute } from '@/modules/GestionDeProyectos/Operacion/Minutas/types/minuteTypes'
+import type { MinuteType, NewMinuteType, ActionItemWithMinute, ProjectOptionType } from '@/modules/GestionDeProyectos/Operacion/Minutas/types/minuteTypes'
 
 const useMinuteStore = defineStore('minute-store', {
     state: () => ({
+        // Projects
+        projectsOptions: [] as ProjectOptionType[],
+        selectedProject: null as ProjectOptionType | null,
+        
+        // Minutes
         minutes: [
             {
                 id: 'MIN001',
+                projectId: 1,
                 title: 'Reunión de Kickoff - Proyecto ERP',
                 date: '2024-01-20',
                 time: '10:00 - 11:30',
@@ -21,12 +27,32 @@ const useMinuteStore = defineStore('minute-store', {
                 distributed: true
             }
         ] as MinuteType[],
-        isModalOpen: false
+        
+        // Loading & Error
+        isLoading: false,
+        error: null as string | null,
+        
+        // Modal
+        isModalOpen: false,
+        isActionModalOpen: false,
+        selectedMinuteId: null as string | null,
+        selectedAction: null as any | null,
     }),
     actions: {
+        // Projects
+        setProjectsOptions(projects: ProjectOptionType[]) {
+            this.projectsOptions = projects
+        },
+        
+        setSelectedProject(project: ProjectOptionType | null) {
+            this.selectedProject = project
+        },
+        
+        // Minutes
         setMinutes(minutes: MinuteType[]) {
             this.minutes = minutes
         },
+        
         addMinute(newMinute: NewMinuteType) {
             const minute: MinuteType = {
                 id: `MIN${String(this.minutes.length + 1).padStart(3, '0')}`,
@@ -34,22 +60,89 @@ const useMinuteStore = defineStore('minute-store', {
             }
             this.minutes.push(minute)
         },
+        
+        updateMinute(id: string, updatedMinute: Partial<MinuteType>) {
+            const index = this.minutes.findIndex(m => m.id === id)
+            if (index !== -1) {
+                this.minutes[index] = { ...this.minutes[index], ...updatedMinute }
+            }
+        },
+        
+        deleteMinute(id: string) {
+            const index = this.minutes.findIndex(m => m.id === id)
+            if (index !== -1) {
+                this.minutes.splice(index, 1)
+            }
+        },
+        
         distributeMinute(id: string) {
             const index = this.minutes.findIndex(m => m.id === id)
             if (index !== -1) {
                 this.minutes[index].distributed = true
             }
         },
+        
+        // Actions
+        addActionToMinute(minuteId: string, action: { description: string; responsible: string; dueDate: string }) {
+            const minute = this.minutes.find(m => m.id === minuteId)
+            if (minute) {
+                const newAction = {
+                    id: `AI${String(minute.actionItems.length + 1).padStart(3, '0')}`,
+                    ...action,
+                    status: 'Pendiente' as const
+                }
+                minute.actionItems.push(newAction)
+            }
+        },
+        
+        updateActionInMinute(minuteId: string, actionId: string, updatedAction: { description: string; responsible: string; dueDate: string }) {
+            const minute = this.minutes.find(m => m.id === minuteId)
+            if (minute) {
+                const actionIndex = minute.actionItems.findIndex(a => a.id === actionId)
+                if (actionIndex !== -1) {
+                    minute.actionItems[actionIndex] = {
+                        ...minute.actionItems[actionIndex],
+                        ...updatedAction
+                    }
+                }
+            }
+        },
+        
+        // Modal
         openModal() {
             this.isModalOpen = true
         },
+        
         closeModal() {
             this.isModalOpen = false
+        },
+        
+        openActionModal(minuteId: string, action: any = null) {
+            this.selectedMinuteId = minuteId
+            this.selectedAction = action
+            this.isActionModalOpen = true
+        },
+        
+        closeActionModal() {
+            this.selectedMinuteId = null
+            this.selectedAction = null
+            this.isActionModalOpen = false
         }
     },
     getters: {
+        // Filtrar minutas por proyecto seleccionado
+        filteredMinutes: (state): MinuteType[] => {
+            if (!state.selectedProject) return []
+            return state.minutes.filter(m => m.projectId === state.selectedProject?.dni)
+        },
+        
+        // Todas las acciones del proyecto seleccionado
         allActionItems: (state): ActionItemWithMinute[] => {
-            return state.minutes.flatMap(m =>
+            const minutes = state.selectedProject 
+                ? state.minutes.filter(m => m.projectId === state.selectedProject?.dni)
+                : state.minutes
+            
+            return minutes.flatMap(m =>
                 m.actionItems.map(ai => ({
                     ...ai,
                     minuteId: m.id,
@@ -57,8 +150,14 @@ const useMinuteStore = defineStore('minute-store', {
                 }))
             )
         },
+        
+        // Acciones pendientes del proyecto seleccionado
         pendingActions: (state): ActionItemWithMinute[] => {
-            return state.minutes.flatMap(m =>
+            const minutes = state.selectedProject 
+                ? state.minutes.filter(m => m.projectId === state.selectedProject?.dni)
+                : state.minutes
+            
+            return minutes.flatMap(m =>
                 m.actionItems
                     .filter(ai => ai.status !== 'Completada')
                     .map(ai => ({

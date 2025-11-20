@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useModalStore } from '@sharedstore/modal.store'
 import StepNavigation from './StepNavigation.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     stepForm?: boolean
     onSubmit: () => void
     onClose?: () => void
     modalId: string
     isSubmitting: boolean
-}>()
+    size?: 'default' | 'L' | 'XL'
+    submitText?: string
+}>(), {
+    size: 'default',
+    submitText: 'Aceptar'
+})
+
+const modalSizeClass = computed(() => {
+    const sizeMap = {
+        'default': 'max-w-2xl',
+        'L': 'max-w-4xl',
+        'XL': 'max-w-6xl'
+    }
+    return sizeMap[props.size]
+})
 
 const modalRef = ref<HTMLDialogElement | null>(null)
 const modalStore = useModalStore()
@@ -41,7 +55,7 @@ const close = () => {
 
 <template>
     <dialog ref="modalRef" class="modal sm:modal-middle modern-modal" @close="false">
-        <div class="modal-box overflow-auto scrollbar-hide modern-modal-box">
+        <div :class="['modal-box overflow-auto scrollbar-hide modern-modal-box', modalSizeClass]">
             <div class="header-modal mb-10 col-span-12 grid grid-cols-12 items-center">
                 <div class="col-span-1"></div>
                 <p class="text-2xl font-bold text-center col-span-10 modal-title">
@@ -80,7 +94,7 @@ const close = () => {
                                     <span class="loading loading-spinner"></span>
                                     Procesando...
                                 </template>
-                                <template v-else> Aceptar </template>
+                                <template v-else> {{ submitText }} </template>
                             </button>
                         </template>
                     </div>

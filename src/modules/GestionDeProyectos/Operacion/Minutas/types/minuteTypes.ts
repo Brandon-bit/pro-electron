@@ -10,6 +10,7 @@ export type ActionItemType = {
 
 export type MinuteType = {
     id: string
+    projectId: number
     title: string
     date: string
     time: string
@@ -23,6 +24,7 @@ export type MinuteType = {
 }
 
 export type NewMinuteType = {
+    projectId: number
     title: string
     date: string
     time: string
@@ -33,6 +35,11 @@ export type NewMinuteType = {
     decisions: string
     actionItems: ActionItemType[]
     distributed: boolean
+}
+
+export type ProjectOptionType = {
+    dni: number
+    label: string
 }
 
 export type ActionItemWithMinute = ActionItemType & {

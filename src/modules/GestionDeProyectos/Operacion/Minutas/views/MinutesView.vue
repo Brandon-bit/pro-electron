@@ -1,162 +1,221 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import BaseTitle from '@/shared/components/BaseTitle.vue'
+import BaseButton from '@/shared/components/BaseButton.vue'
 import CreateMinuteModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/CreateMinuteModal.vue'
 import ActionsTable from '@/modules/GestionDeProyectos/Operacion/Minutas/components/ActionsTable.vue'
+import MinuteAccordion from '@/modules/GestionDeProyectos/Operacion/Minutas/components/MinuteAccordion.vue'
+import AddActionModal from '@/modules/GestionDeProyectos/Operacion/Minutas/components/AddActionModal.vue'
 import useMinuteStore from '@/modules/GestionDeProyectos/Operacion/Minutas/store/minuteStore'
 import { useMinuteActions } from '@/modules/GestionDeProyectos/Operacion/Minutas/composables/useMinuteActions'
+import { showNotification } from '@/utils/toastNotifications'
 
 const minuteStore = useMinuteStore()
-const { getActionStatusColor, loadMinutes, saveMinutes, handleDistribute } = useMinuteActions()
+const { loadMinutes, loadProjects, saveMinutes, handleDistribute } = useMinuteActions()
 
-onMounted(() => {
+const activeTab = ref<'minutes' | 'actions'>('minutes')
+
+// Opciones para el selector de proyectos
+const projectsOptions = computed(() => 
+    minuteStore.projectsOptions.map(p => ({
+        value: p.dni,
+        label: p.label
+    }))
+)
+
+const selectedProjectId = computed({
+    get: () => minuteStore.selectedProject?.dni || null,
+    set: (value: number | null) => {
+        if (value) {
+            const project = minuteStore.projectsOptions.find(p => p.dni === value)
+            minuteStore.setSelectedProject(project || null)
+        } else {
+            minuteStore.setSelectedProject(null)
+        }
+    }
+})
+
+// Handlers para las acciones de las minutas
+const handleEditMinute = (id: string) => {
+    // TODO: Implementar edición de minuta
+    showNotification('Funcionalidad de edición en desarrollo', 'info')
+}
+
+const handleDeleteMinute = (id: string) => {
+    if (confirm('¿Estás seguro de eliminar esta minuta?')) {
+        minuteStore.deleteMinute(id)
+        showNotification('Minuta eliminada exitosamente', 'success')
+    }
+}
+
+const handleDistributeMinute = (id: string) => {
+    handleDistribute(id)
+}
+
+const handleAddAction = (minuteId: string) => {
+    minuteStore.openActionModal(minuteId)
+}
+
+const handleEditAction = (minuteId: string, action: any) => {
+    minuteStore.openActionModal(minuteId, action)
+}
+
+const handleTabChange = (tab: 'minutes' | 'actions') => {
+    activeTab.value = tab
+}
+
+onMounted(async () => {
     loadMinutes()
+    await loadProjects()
 })
 </script>
 
 <template>
     <div class="space-y-6">
         <!-- Header -->
-        <div class="flex items-center justify-between">
-            <BaseTitle 
-                title="Minutas" 
-                subtitle="Registro de reuniones, decisiones y acciones"
-            >
-                <template #icon>
-                    <span class="material-symbols-outlined text-4xl">description</span>
-                </template>
-            </BaseTitle>
-            <div class="flex gap-2">
-                <button @click="saveMinutes" class="btn btn-outline gap-2">
-                    <span class="material-symbols-outlined">save</span>
-                    Guardar
-                </button>
-                <button @click="minuteStore.openModal()" class="btn btn-primary gap-2">
-                    <span class="material-symbols-outlined">add</span>
-                    Nueva Minuta
-                </button>
+        <BaseTitle 
+            title="Minutas" 
+            subtitle="Registro de reuniones, decisiones y acciones del proyecto"
+        />
+
+        <!-- Selector de Proyecto -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h3 class="card-title text-lg mb-4">Seleccionar Proyecto</h3>
+                <div class="form-control w-full max-w-md">
+                    <label class="label">
+                        <span class="label-text">Proyecto</span>
+                    </label>
+                    <select 
+                        v-model="selectedProjectId" 
+                        class="select select-bordered w-full"
+                        :disabled="minuteStore.isLoading"
+                    >
+                        <option :value="null">Selecciona un proyecto...</option>
+                        <option 
+                            v-for="option in projectsOptions" 
+                            :key="option.value" 
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div role="tablist" class="tabs tabs-boxed bg-base-200">
-            <input type="radio" name="minute_tabs" role="tab" class="tab" aria-label="Minutas" checked />
-            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6 mt-4">
-                <div class="space-y-4">
-                    <div 
-                        v-for="minute in minuteStore.minutes" 
-                        :key="minute.id" 
-                        class="card bg-base-100 shadow-xl"
-                    >
-                        <div class="card-body">
-                            <!-- Header -->
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-3">
-                                    <h3 class="card-title">{{ minute.title }}</h3>
-                                    <span v-if="minute.distributed" class="badge badge-outline badge-success gap-2">
-                                        <span class="material-symbols-outlined text-sm">send</span>
-                                        Distribuida
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-2 opacity-70">
-                                    <span class="material-symbols-outlined">event</span>
-                                    <span>{{ minute.date }} • {{ minute.time }}</span>
-                                </div>
-                            </div>
+        <!-- Loading state -->
+        <div v-if="minuteStore.isLoading" class="flex items-center justify-center py-12">
+            <span class="loading loading-spinner loading-lg"></span>
+        </div>
 
-                            <!-- Content -->
-                            <div class="space-y-4">
-                                <!-- Asistentes y Ausentes -->
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p class="text-sm font-semibold mb-1">Asistentes:</p>
-                                        <div class="flex flex-wrap gap-1">
-                                            <span 
-                                                v-for="(att, idx) in minute.attendees" 
-                                                :key="idx" 
-                                                class="badge badge-secondary text-xs gap-1"
-                                            >
-                                                <span class="material-symbols-outlined text-xs">person</span>
-                                                {{ att }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div v-if="minute.absentees.length > 0">
-                                        <p class="text-sm font-semibold mb-1">Ausentes:</p>
-                                        <div class="flex flex-wrap gap-1">
-                                            <span 
-                                                v-for="(abs, idx) in minute.absentees" 
-                                                :key="idx" 
-                                                class="badge badge-outline text-xs"
-                                            >
-                                                {{ abs }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+        <!-- Estado vacío: sin proyecto seleccionado -->
+        <div v-else-if="!minuteStore.selectedProject" class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <span class="material-symbols-outlined text-6xl opacity-30 mb-4">description</span>
+                    <h3 class="text-xl font-semibold mb-2">No hay proyecto seleccionado</h3>
+                    <p class="text-sm opacity-70">
+                        Selecciona un proyecto para visualizar y gestionar sus minutas
+                    </p>
+                </div>
+            </div>
+        </div>
 
-                                <!-- Agenda -->
-                                <div>
-                                    <p class="text-sm font-semibold mb-1">Agenda:</p>
-                                    <pre class="text-sm opacity-70 whitespace-pre-wrap font-sans">{{ minute.agenda }}</pre>
-                                </div>
-
-                                <!-- Discusión -->
-                                <div>
-                                    <p class="text-sm font-semibold mb-1">Discusión:</p>
-                                    <p class="text-sm opacity-70">{{ minute.discussion }}</p>
-                                </div>
-
-                                <!-- Decisiones -->
-                                <div>
-                                    <p class="text-sm font-semibold mb-1">Decisiones:</p>
-                                    <pre class="text-sm opacity-70 whitespace-pre-wrap font-sans">{{ minute.decisions }}</pre>
-                                </div>
-
-                                <!-- Acciones Acordadas -->
-                                <div v-if="minute.actionItems.length > 0">
-                                    <p class="text-sm font-semibold mb-2">Acciones Acordadas:</p>
-                                    <div class="space-y-2">
-                                        <div 
-                                            v-for="action in minute.actionItems" 
-                                            :key="action.id" 
-                                            class="flex items-center justify-between p-3 border rounded-lg"
-                                        >
-                                            <div class="flex-1">
-                                                <p class="font-medium">{{ action.description }}</p>
-                                                <p class="text-sm opacity-70">
-                                                    Responsable: {{ action.responsible }} • Fecha límite: {{ action.dueDate }}
-                                                </p>
-                                            </div>
-                                            <span :class="['badge', getActionStatusColor(action.status)]">
-                                                {{ action.status }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Botón Distribuir -->
-                                <button 
-                                    v-if="!minute.distributed" 
-                                    @click="handleDistribute(minute.id)" 
-                                    class="btn btn-primary w-full gap-2"
-                                >
-                                    <span class="material-symbols-outlined">send</span>
-                                    Distribuir Minuta por Email
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Vista principal con proyecto seleccionado -->
+        <template v-else>
+            <!-- Botones de acción -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">folder_open</span>
+                    <span class="font-semibold">{{ minuteStore.selectedProject.label }}</span>
+                </div>
+                <div class="flex gap-2">
+                    <BaseButton
+                        text="Guardar"
+                        icon="save"
+                        variant="outline"
+                        @click="saveMinutes"
+                    />
+                    <BaseButton
+                        text="Nueva Minuta"
+                        icon="add"
+                        variant="primary"
+                        @click="minuteStore.openModal()"
+                    />
                 </div>
             </div>
 
-            <input type="radio" name="minute_tabs" role="tab" class="tab" aria-label="Acciones Pendientes" />
-            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6 mt-4">
-                <ActionsTable />
-            </div>
-        </div>
+            <!-- Tabs -->
+            <div class="tabs tabs-boxed bg-base-200 w-fit">
+                <button
+                    :class="['tab', { 'tab-active': activeTab === 'minutes' }]"
+                    @click="handleTabChange('minutes')"
+                >
+                    <span class="material-symbols-outlined text-sm mr-2">description</span>
+                    Minutas
+                </button>
 
-        <!-- Modal -->
+                <button
+                    :class="['tab', { 'tab-active': activeTab === 'actions' }]"
+                    @click="handleTabChange('actions')"
+                >
+                    <span class="material-symbols-outlined text-sm mr-2">check_box</span>
+                    Acciones Pendientes
+                </button>
+            </div>
+
+            <!-- Tab: Minutas -->
+            <section v-if="activeTab === 'minutes'" class="space-y-4">
+                <!-- Lista de minutas en accordions -->
+                <div v-if="minuteStore.filteredMinutes.length > 0" class="space-y-3">
+                    <MinuteAccordion
+                        v-for="minute in minuteStore.filteredMinutes"
+                        :key="minute.id"
+                        :minute="minute"
+                        @edit="handleEditMinute"
+                        @add-action="handleAddAction"
+                        @edit-action="handleEditAction"
+                        @delete="handleDeleteMinute"
+                        @distribute="handleDistributeMinute"
+                    />
+                </div>
+
+                <!-- Estado vacío: sin minutas -->
+                <div v-else class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <div class="flex flex-col items-center justify-center py-12 text-center">
+                            <span class="material-symbols-outlined text-6xl opacity-30 mb-4">description</span>
+                            <h3 class="text-xl font-semibold mb-2">No hay minutas registradas</h3>
+                            <p class="text-sm opacity-70 mb-4">
+                                Comienza creando la primera minuta para este proyecto
+                            </p>
+                            <BaseButton
+                                text="Crear Primera Minuta"
+                                icon="add"
+                                variant="primary"
+                                @click="minuteStore.openModal()"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Acciones Pendientes -->
+            <section v-else class="space-y-4">
+                <ActionsTable />
+            </section>
+        </template>
+
+        <!-- Modals -->
         <CreateMinuteModal />
+        <AddActionModal />
     </div>
 </template>
+
+<style scoped>
+.tab {
+    display: flex;
+    align-items: center;
+}
+</style>
