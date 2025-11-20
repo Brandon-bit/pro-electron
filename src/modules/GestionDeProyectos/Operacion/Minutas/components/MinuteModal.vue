@@ -95,6 +95,7 @@ const onSubmit = async () => {
                 modalStore.close(minuteStore.minuteModalId)
             }
         })()
+        resetForm()
         return
     }
 

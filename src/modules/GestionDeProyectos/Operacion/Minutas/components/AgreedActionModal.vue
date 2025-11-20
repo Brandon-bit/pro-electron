@@ -15,8 +15,6 @@ const modalStore = useModalStore()
 const minuteStore = useMinuteStore()
 const { createAgreedAction, updateAgreedAction, deleteAgreedAction } = useAgreedActionActions()
 
-const selectedAction = ref<AgreedActionType | null>(null)
-
 const { handleSubmit, isSubmitting, resetForm, setValues } = useForm({
     validationSchema: toTypedSchema(agreedActionSchema),
     validateOnMount: false,
@@ -27,23 +25,24 @@ const { handleSubmit, isSubmitting, resetForm, setValues } = useForm({
     }
 })
 
-// Watch for modal data to get selected action
+// Get selected action from modal data
+const selectedAction = computed(() => {
+    return modalStore.modals[minuteStore.agreedActionModalId]?.data?.action || null
+})
+
+// Watch for selected action to populate form
 watch(
-    () => modalStore.modals[minuteStore.agreedActionModalId],
-    (modal) => {
-        if (modal?.data?.action) {
-            selectedAction.value = modal.data.action
-            // Populate form for edit
+    selectedAction,
+    (action) => {
+        if (action) {
             setValues({
-                descripcion: modal.data.action.description,
-                dniResponsable: modal.data.action.responsible.dni,
-                fechaLimite: modal.data.action.dueDate
+                descripcion: action.description,
+                dniResponsable: action.responsible.dni,
+                fechaLimite: action.dueDate
             })
-        } else if (!modal?.isOpen) {
-            selectedAction.value = null
         }
     },
-    { deep: true, immediate: true }
+    { immediate: true }
 )
 
 const modalMap = {
@@ -88,10 +87,10 @@ const onSubmit = async () => {
 
             const success = await modalMap[modalType].action(data)
             if (success) {
-                selectedAction.value = null
                 modalStore.close(minuteStore.agreedActionModalId)
             }
         })()
+        resetForm()
         return
     }
 
@@ -102,7 +101,6 @@ const onSubmit = async () => {
             selectedAction.value.dni
         )
         if (success) {
-            selectedAction.value = null
             modalStore.close(minuteStore.agreedActionModalId)
         }
     }
@@ -110,7 +108,6 @@ const onSubmit = async () => {
 
 const onClose = () => {
     resetForm()
-    selectedAction.value = null
 }
 </script>
 
