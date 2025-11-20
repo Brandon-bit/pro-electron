@@ -37,3 +37,16 @@ export const classificationSchema = z.object({
   ),
   active: z.boolean().default(true),
 })
+
+export const lessonLearnedCategorySchema = z.object({
+  name: z
+    .string({ required_error: 'El nombre es obligatorio' })
+    .min(1, 'El nombre es obligatorio')
+    .max(150, 'Máximo 150 caracteres'),
+  description: stringValidator(
+    'La descripción es obligatoria',
+    'La descripción debe tener al menos 3 caracteres',
+    3
+  ),
+  active: z.boolean().default(true),
+})

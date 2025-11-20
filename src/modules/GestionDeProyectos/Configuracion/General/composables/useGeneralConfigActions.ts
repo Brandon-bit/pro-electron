@@ -6,6 +6,8 @@ import {
   mapCategoryResponse,
   mapClassificationRequest,
   mapClassificationResponse,
+  mapLessonLearnedCategoryRequest,
+  mapLessonLearnedCategoryResponse,
 } from '@/modules/GestionDeProyectos/Configuracion/General/composables/mappingGeneralConfigData'
 import type {
   ProjectAreaFormType,
@@ -14,6 +16,8 @@ import type {
   ProjectAreaType,
   ProjectCategoryType,
   ProjectClassificationType,
+  LessonLearnedCategoryFormType,
+  LessonLearnedCategoryType,
 } from '@/modules/GestionDeProyectos/Configuracion/General/types/generalConfigTypes'
 import useGeneralConfigStore from '@/modules/GestionDeProyectos/Configuracion/General/store/generalConfigStore'
 import { showNotification } from '@/utils/toastNotifications'
@@ -42,6 +46,19 @@ export const useGeneralConfigActions = () => {
     } catch (error) {
       console.error(error)
       showNotification('Error al cargar las clasificaciones', 'error')
+    } finally {
+      configStore.isLoading = false
+    }
+  }
+
+  const loadLessonLearnedCategories = async () => {
+    try {
+      configStore.isLoading = true
+      const response = await generalConfigService.getLessonLearnedCategories()
+      configStore.lessonLearnedCategories = response.data.map(mapLessonLearnedCategoryResponse)
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al cargar las categorías de lecciones aprendidas', 'error')
     } finally {
       configStore.isLoading = false
     }
@@ -244,9 +261,74 @@ export const useGeneralConfigActions = () => {
     }
   }
 
+  // Lesson Learned Categories
+  const createLessonLearnedCategory = async (
+    form: LessonLearnedCategoryFormType
+  ): Promise<{ message: string; status: string; data: LessonLearnedCategoryType | null }> => {
+    try {
+      const payload = mapLessonLearnedCategoryRequest(undefined, form)
+      const response = await generalConfigService.createLessonLearnedCategory(payload)
+      const mapped = mapLessonLearnedCategoryResponse(response.data)
+      configStore.lessonLearnedCategories.push(mapped)
+      showNotification('Categoría de lección aprendida creada exitosamente', 'success')
+      return { message: response.message, status: response.success ? 'success' : 'error', data: mapped }
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al crear la categoría de lección aprendida', 'error')
+      return { message: 'Error al crear la categoría de lección aprendida', status: 'error', data: null }
+    }
+  }
+
+  const updateLessonLearnedCategory = async (
+    categoryId: number,
+    form: LessonLearnedCategoryFormType
+  ): Promise<{ message: string; status: string }> => {
+    try {
+      const payload = mapLessonLearnedCategoryRequest(categoryId, form)
+      const response = await generalConfigService.updateLessonLearnedCategory(payload)
+
+      if (response.success) {
+        const idx = configStore.lessonLearnedCategories.findIndex((c) => c.id === categoryId)
+        if (idx !== -1) {
+          configStore.lessonLearnedCategories[idx] = {
+            ...configStore.lessonLearnedCategories[idx],
+            ...form,
+          }
+        }
+      }
+
+      showNotification(response.message, response.success ? 'success' : 'error')
+      return { message: response.message, status: response.success ? 'success' : 'error' }
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al actualizar la categoría de lección aprendida', 'error')
+      return { message: 'Error al actualizar la categoría de lección aprendida', status: 'error' }
+    }
+  }
+
+  const deleteLessonLearnedCategory = async (categoryId: number): Promise<boolean> => {
+    try {
+      const response = await generalConfigService.deleteLessonLearnedCategory(categoryId)
+      if (response.success) {
+        configStore.lessonLearnedCategories = configStore.lessonLearnedCategories.filter(
+          (c) => c.id !== categoryId
+        )
+        showNotification('Categoría de lección aprendida eliminada exitosamente', 'success')
+        return true
+      }
+      showNotification(response.message, 'error')
+      return false
+    } catch (error) {
+      console.error(error)
+      showNotification('Error al eliminar la categoría de lección aprendida', 'error')
+      return false
+    }
+  }
+
   return {
     loadAreasAndCategories,
     loadClassifications,
+    loadLessonLearnedCategories,
     createArea,
     updateArea,
     deleteArea,
@@ -256,5 +338,8 @@ export const useGeneralConfigActions = () => {
     createClassification,
     updateClassification,
     deleteClassification,
+    createLessonLearnedCategory,
+    updateLessonLearnedCategory,
+    deleteLessonLearnedCategory,
   }
 }

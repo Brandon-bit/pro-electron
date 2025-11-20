@@ -6,6 +6,8 @@ import type {
   ProjectCategoryRequestType,
   ProjectClassificationResponseType,
   ProjectClassificationRequestType,
+  LessonLearnedCategoryResponseType,
+  LessonLearnedCategoryRequestType,
 } from '@/modules/GestionDeProyectos/Configuracion/General/types/generalConfigTypes'
 import type { ApiResponseType } from '@/shared/types/apiResponseType'
 
@@ -98,6 +100,41 @@ export const generalConfigService = {
   async deleteClassification(id: number): Promise<ApiResponseType<{ totalItems: number }>> {
     const response = await axiosApiInstance.delete(
       `/gestion-de-proyectos/configuracion-general/clasificacion/${id}`
+    )
+    return response.data
+  },
+
+  // Lesson Learned Categories
+  async getLessonLearnedCategories(): Promise<ApiResponseType<LessonLearnedCategoryResponseType[]>> {
+    const response = await axiosApiInstance.get(
+      '/gestion-de-proyectos/leccion-aprendida-categoria'
+    )
+    return response.data
+  },
+
+  async createLessonLearnedCategory(
+    data: LessonLearnedCategoryRequestType
+  ): Promise<ApiResponseType<LessonLearnedCategoryResponseType>> {
+    const response = await axiosApiInstance.post(
+      '/gestion-de-proyectos/leccion-aprendida-categoria',
+      data
+    )
+    return response.data
+  },
+
+  async updateLessonLearnedCategory(
+    data: LessonLearnedCategoryRequestType
+  ): Promise<ApiResponseType<boolean>> {
+    const response = await axiosApiInstance.put(
+      '/gestion-de-proyectos/leccion-aprendida-categoria',
+      data
+    )
+    return response.data
+  },
+
+  async deleteLessonLearnedCategory(id: number): Promise<ApiResponseType<{ totalItems: number }>> {
+    const response = await axiosApiInstance.delete(
+      `/gestion-de-proyectos/leccion-aprendida-categoria/${id}`
     )
     return response.data
   },

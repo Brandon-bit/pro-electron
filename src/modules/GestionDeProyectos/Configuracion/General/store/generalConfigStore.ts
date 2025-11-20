@@ -3,6 +3,7 @@ import type {
   ProjectAreaType,
   ProjectCategoryType,
   ProjectClassificationType,
+  LessonLearnedCategoryType,
 } from '@/modules/GestionDeProyectos/Configuracion/General/types/generalConfigTypes'
 
 const initialArea: ProjectAreaType = {
@@ -27,20 +28,30 @@ const initialClassification: ProjectClassificationType = {
   active: true,
 }
 
+const initialLessonLearnedCategory: LessonLearnedCategoryType = {
+  id: 0,
+  name: '',
+  description: '',
+  active: true,
+}
+
 const useGeneralConfigStore = defineStore('general-config-store', {
   state: () => ({
     areas: [] as ProjectAreaType[],
     classifications: [] as ProjectClassificationType[],
+    lessonLearnedCategories: [] as LessonLearnedCategoryType[],
     isLoading: false,
 
     // selección para modales
     selectedArea: null as ProjectAreaType | null,
     selectedCategory: null as ProjectCategoryType | null,
     selectedClassification: null as ProjectClassificationType | null,
+    selectedLessonLearnedCategory: null as LessonLearnedCategoryType | null,
 
     areaModalId: 'project-area-modal',
     categoryModalId: 'project-category-modal',
     classificationModalId: 'project-classification-modal',
+    lessonLearnedCategoryModalId: 'lesson-learned-category-modal',
   }),
   actions: {
     setArea(area: ProjectAreaType = initialArea) {
@@ -60,6 +71,12 @@ const useGeneralConfigStore = defineStore('general-config-store', {
     },
     clearClassification() {
       this.selectedClassification = null
+    },
+    setLessonLearnedCategory(category: LessonLearnedCategoryType = initialLessonLearnedCategory) {
+      this.selectedLessonLearnedCategory = category
+    },
+    clearLessonLearnedCategory() {
+      this.selectedLessonLearnedCategory = null
     },
   },
 })

@@ -8,21 +8,23 @@ import { useGeneralConfigActions } from '@/modules/GestionDeProyectos/Configurac
 import AreaModal from '@/modules/GestionDeProyectos/Configuracion/General/components/AreaModal.vue'
 import CategoryModal from '@/modules/GestionDeProyectos/Configuracion/General/components/CategoryModal.vue'
 import ClassificationModal from '@/modules/GestionDeProyectos/Configuracion/General/components/ClassificationModal.vue'
+import LessonLearnedCategoryModal from '@/modules/GestionDeProyectos/Configuracion/General/components/LessonLearnedCategoryModal.vue'
 
-const activeTab = ref<'areas' | 'classifications'>('areas')
+const activeTab = ref<'areas' | 'classifications' | 'lessonLearnedCategories'>('areas')
 
 const modalStore = useModalStore()
 const configStore = useGeneralConfigStore()
-const { loadAreasAndCategories, loadClassifications } = useGeneralConfigActions()
+const { loadAreasAndCategories, loadClassifications, loadLessonLearnedCategories } = useGeneralConfigActions()
 
 const areas = computed(() => configStore.areas)
 const classifications = computed(() => configStore.classifications)
+const lessonLearnedCategories = computed(() => configStore.lessonLearnedCategories)
 
 const totalCategories = computed(() =>
   areas.value.reduce((sum, area) => sum + area.categories.length, 0)
 )
 
-const handleTabChange = (tab: 'areas' | 'classifications') => {
+const handleTabChange = (tab: 'areas' | 'classifications' | 'lessonLearnedCategories') => {
   activeTab.value = tab
 }
 
@@ -133,9 +135,44 @@ const openDeleteClassificationModal = (classificationId: number) => {
   })
 }
 
+// Acciones para modales de Categorías de Lecciones Aprendidas
+const openCreateLessonLearnedCategoryModal = () => {
+  configStore.setLessonLearnedCategory({
+    id: 0,
+    name: '',
+    description: '',
+    active: true,
+  })
+  modalStore.open(configStore.lessonLearnedCategoryModalId, {
+    type: 'CREATE',
+    title: 'Nueva categoría de lección aprendida',
+  })
+}
+
+const openEditLessonLearnedCategoryModal = (categoryId: number) => {
+  const category = lessonLearnedCategories.value.find((c) => c.id === categoryId)
+  if (!category) return
+  configStore.setLessonLearnedCategory(category)
+  modalStore.open(configStore.lessonLearnedCategoryModalId, {
+    type: 'EDIT',
+    title: 'Editar categoría de lección aprendida',
+  })
+}
+
+const openDeleteLessonLearnedCategoryModal = (categoryId: number) => {
+  const category = lessonLearnedCategories.value.find((c) => c.id === categoryId)
+  if (!category) return
+  configStore.setLessonLearnedCategory(category)
+  modalStore.open(configStore.lessonLearnedCategoryModalId, {
+    type: 'DELETE',
+    title: 'Eliminar categoría de lección aprendida',
+  })
+}
+
 onMounted(() => {
   loadAreasAndCategories()
   loadClassifications()
+  loadLessonLearnedCategories()
 })
 </script>
 
@@ -153,7 +190,7 @@ onMounted(() => {
         @click="handleTabChange('areas')"
       >
         <span class="material-symbols-outlined text-sm mr-2">category</span>
-        Áreas y Categorías
+        Áreas y Categorías en Proyectos
       </button>
 
       <button
@@ -162,6 +199,14 @@ onMounted(() => {
       >
         <span class="material-symbols-outlined text-sm mr-2">segment</span>
         Clasificaciones
+      </button>
+
+      <button
+        :class="['tab', { 'tab-active': activeTab === 'lessonLearnedCategories' }]"
+        @click="handleTabChange('lessonLearnedCategories')"
+      >
+        <span class="material-symbols-outlined text-sm mr-2">school</span>
+        Categorías en Lecciones Aprendidas
       </button>
     </div>
 
@@ -294,7 +339,7 @@ onMounted(() => {
     </section>
 
     <!-- Tab: Clasificaciones -->
-    <section v-else class="space-y-4">
+    <section v-else-if="activeTab === 'classifications'" class="space-y-4">
       <div class="flex flex-wrap gap-3 items-center justify-between text-sm">
         <div class="flex flex-wrap gap-3 items-center opacity-70">
           <div class="badge badge-ghost gap-2">
@@ -357,11 +402,77 @@ onMounted(() => {
         </article>
       </div>
     </section>
+
+    <!-- Tab: Categorías en Lecciones Aprendidas -->
+    <section v-else class="space-y-4">
+      <div class="flex flex-wrap gap-3 items-center justify-between text-sm">
+        <div class="flex flex-wrap gap-3 items-center opacity-70">
+          <div class="badge badge-ghost gap-2">
+            <span class="material-symbols-outlined text-sm">school</span>
+            {{ lessonLearnedCategories.length }} categorías
+          </div>
+        </div>
+        <BaseButton
+          text="Nueva categoría"
+          icon="add"
+          variant="primary"
+          class-name="btn-sm"
+          @click="openCreateLessonLearnedCategoryModal"
+        />
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <article
+          v-for="category in lessonLearnedCategories"
+          :key="category.id"
+          class="card bg-base-100 border border-base-200/70 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div class="card-body p-4 space-y-3">
+            <header class="flex items-start justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-semibold leading-tight">
+                  {{ category.name }}
+                </h2>
+                <p v-if="category.description" class="text-xs mt-1 opacity-70">
+                  {{ category.description }}
+                </p>
+              </div>
+
+              <div class="flex flex-col items-end gap-2">
+                <span
+                  class="material-symbols-outlined text-xs"
+                  :class="category.active ? 'text-success' : 'text-base-content/40'"
+                >
+                  {{ category.active ? 'check_circle' : 'pause_circle' }}
+                </span>
+                <div class="flex gap-1">
+                  <BaseButton
+                    text=""
+                    icon="edit"
+                    variant="ghost"
+                    class-name="btn-xs"
+                    @click="openEditLessonLearnedCategoryModal(category.id)"
+                  />
+                  <BaseButton
+                    text=""
+                    icon="delete"
+                    variant="ghost"
+                    class-name="btn-xs text-error"
+                    @click="openDeleteLessonLearnedCategoryModal(category.id)"
+                  />
+                </div>
+              </div>
+            </header>
+          </div>
+        </article>
+      </div>
+    </section>
     
     <!-- Modales -->
     <AreaModal />
     <CategoryModal />
     <ClassificationModal />
+    <LessonLearnedCategoryModal />
   </div>
 </template>
 

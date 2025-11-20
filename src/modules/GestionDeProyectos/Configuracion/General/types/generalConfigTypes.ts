@@ -88,3 +88,31 @@ export type ProjectClassificationFormType = {
   description?: string
   active: boolean
 }
+
+// Lesson Learned Category Types
+export type LessonLearnedCategoryType = {
+  id: number
+  name: string
+  description: string
+  active: boolean
+}
+
+export type LessonLearnedCategoryResponseType = {
+  dni: number
+  nombre: string
+  descripcion: string
+  activo: boolean
+}
+
+export type LessonLearnedCategoryRequestType = {
+  dni?: number
+  nombre: string
+  descripcion: string
+  activo: boolean
+}
+
+export type LessonLearnedCategoryFormType = {
+  name: string
+  description?: string
+  active: boolean
+}

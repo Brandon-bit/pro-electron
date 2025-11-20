@@ -11,6 +11,10 @@ import type {
   ProjectAreaFormType,
   ProjectCategoryFormType,
   ProjectClassificationFormType,
+  LessonLearnedCategoryType,
+  LessonLearnedCategoryResponseType,
+  LessonLearnedCategoryRequestType,
+  LessonLearnedCategoryFormType,
 } from '@/modules/GestionDeProyectos/Configuracion/General/types/generalConfigTypes'
 
 export const mapAreaResponse = (model: ProjectAreaResponseType): ProjectAreaType => {
@@ -32,7 +36,7 @@ export const mapAreaRequest = (id: number | undefined, form: ProjectAreaFormType
   return {
     dni: id,
     nombre: form.name,
-    descripcion: form.description,
+    descripcion: form.description ?? '',
     activo: form.active,
   }
 }
@@ -76,7 +80,30 @@ export const mapClassificationRequest = (
   return {
     dni: id,
     nombre: form.name,
-    descripcion: form.description,
+    descripcion: form.description ?? '',
+    activo: form.active,
+  }
+}
+
+export const mapLessonLearnedCategoryResponse = (
+  model: LessonLearnedCategoryResponseType
+): LessonLearnedCategoryType => {
+  return {
+    id: model.dni,
+    name: model.nombre,
+    description: model.descripcion ?? '',
+    active: model.activo,
+  }
+}
+
+export const mapLessonLearnedCategoryRequest = (
+  id: number | undefined,
+  form: LessonLearnedCategoryFormType
+): LessonLearnedCategoryRequestType => {
+  return {
+    dni: id,
+    nombre: form.name,
+    descripcion: form.description ?? '',
     activo: form.active,
   }
 }
