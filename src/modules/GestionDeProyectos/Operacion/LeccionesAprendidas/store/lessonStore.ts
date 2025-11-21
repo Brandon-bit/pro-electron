@@ -1,63 +1,57 @@
 import { defineStore } from 'pinia'
-import type { LessonLearnedType, NewLessonType } from '@/modules/GestionDeProyectos/Operacion/LeccionesAprendidas/types/lessonTypes'
+import type {
+    LessonLearnedType,
+    ProjectOptionType,
+    CategoryOptionType,
+    AttendeeType
+} from '@/modules/GestionDeProyectos/Operacion/LeccionesAprendidas/types/lessonTypes'
 
 const useLessonStore = defineStore('lesson-store', {
     state: () => ({
-        lessons: [
-            {
-                id: 'LL001',
-                project: 'Implementación ERP',
-                phase: 'Planificación' as const,
-                situation: 'Subestimación del tiempo necesario para mapeo de procesos',
-                cause: 'No se consultó a usuarios finales en etapa inicial',
-                impact: 'Retraso de 3 semanas en cronograma y necesidad de re-trabajo',
-                lesson: 'La participación temprana de usuarios finales es crítica para entender procesos reales',
-                recommendation: 'Incluir workshops con usuarios finales en la fase de Discovery antes de diseñar solución',
-                category: 'Alcance' as const,
-                type: 'Negativa' as const,
-                tags: ['gestión-stakeholders', 'planificación', 'requisitos'],
-                author: 'Juan Pérez',
-                date: '2024-01-15'
-            },
-            {
-                id: 'LL002',
-                project: 'Implementación ERP',
-                phase: 'Ejecución' as const,
-                situation: 'Implementación de ambiente de pruebas paralelo al desarrollo',
-                cause: 'Decisión proactiva del equipo técnico',
-                impact: 'Detección temprana de conflictos de integración, ahorro de 2 semanas en fase de testing',
-                lesson: 'Ambiente de testing temprano permite identificar problemas antes de UAT',
-                recommendation: 'Provisionar ambiente de testing desde el inicio del proyecto, no esperar a fase de pruebas',
-                category: 'Calidad' as const,
-                type: 'Positiva' as const,
-                tags: ['testing', 'calidad', 'infraestructura'],
-                author: 'María García',
-                date: '2024-01-20'
-            }
-        ] as LessonLearnedType[],
-        isModalOpen: false,
-        searchTerm: ''
+        lessons: [] as LessonLearnedType[],
+        projectOptions: [] as ProjectOptionType[],
+        categoryOptions: [] as CategoryOptionType[],
+        participants: [] as AttendeeType[],
+        selectedProject: null as ProjectOptionType | null,
+        selectedLesson: null as LessonLearnedType | null,
+        isLoading: false,
+        searchTerm: '',
+        
+        // Modal IDs
+        lessonModalId: 'lesson-modal',
+        attendeeModalId: 'lesson-attendee-modal'
     }),
     actions: {
         setLessons(lessons: LessonLearnedType[]) {
             this.lessons = lessons
         },
-        addLesson(newLesson: NewLessonType) {
-            const lesson: LessonLearnedType = {
-                id: `LL${String(this.lessons.length + 1).padStart(3, '0')}`,
-                ...newLesson,
-                date: new Date().toISOString().split('T')[0]
+        setProjectOptions(options: ProjectOptionType[]) {
+            this.projectOptions = options
+        },
+        setCategoryOptions(options: CategoryOptionType[]) {
+            this.categoryOptions = options
+        },
+        setParticipants(participants: AttendeeType[]) {
+            this.participants = participants
+        },
+        setSelectedProject(project: ProjectOptionType | null) {
+            this.selectedProject = project
+            // Clear lessons when project changes
+            if (!project) {
+                this.lessons = []
             }
-            this.lessons.push(lesson)
+        },
+        setSelectedLesson(lesson: LessonLearnedType | null) {
+            this.selectedLesson = lesson
+        },
+        clearSelectedLesson() {
+            this.selectedLesson = null
         },
         setSearchTerm(term: string) {
             this.searchTerm = term
         },
-        openModal() {
-            this.isModalOpen = true
-        },
-        closeModal() {
-            this.isModalOpen = false
+        setLoading(loading: boolean) {
+            this.isLoading = loading
         }
     },
     getters: {
@@ -66,10 +60,11 @@ const useLessonStore = defineStore('lesson-store', {
             
             const term = state.searchTerm.toLowerCase()
             return state.lessons.filter(lesson =>
-                lesson.situation.toLowerCase().includes(term) ||
-                lesson.lesson.toLowerCase().includes(term) ||
+                lesson.description.toLowerCase().includes(term) ||
+                lesson.lessonLearned.toLowerCase().includes(term) ||
                 lesson.tags.some(tag => tag.toLowerCase().includes(term)) ||
-                lesson.project.toLowerCase().includes(term)
+                lesson.author.toLowerCase().includes(term) ||
+                lesson.category.name.toLowerCase().includes(term)
             )
         },
         positiveLessons: (state) => state.lessons.filter(l => l.type === 'Positiva'),
@@ -77,7 +72,14 @@ const useLessonStore = defineStore('lesson-store', {
         categoryCount: (state) => {
             const count: Record<string, number> = {}
             state.lessons.forEach(lesson => {
-                count[lesson.category] = (count[lesson.category] || 0) + 1
+                count[lesson.category.name] = (count[lesson.category.name] || 0) + 1
+            })
+            return count
+        },
+        phaseCount: (state) => {
+            const count: Record<string, number> = {}
+            state.lessons.forEach(lesson => {
+                count[lesson.projectPhase] = (count[lesson.projectPhase] || 0) + 1
             })
             return count
         },
