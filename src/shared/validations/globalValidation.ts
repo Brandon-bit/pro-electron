@@ -75,4 +75,30 @@ export const regexValidator = (requiredMessage: string, formatMessage: string, p
         .regex(pattern, formatMessage)
 }
 
+export const selectStringValidator = (
+  message: string,
+  allowZero: boolean = false,
+  required: boolean = true
+) => {
+  const baseSchema = z
+    .string({ required_error: message, invalid_type_error: message })
+    .refine(
+      (val) => {
+        if (val.trim() === "") return false;
+        if (!allowZero && val === "0") return false;
+        return true;
+      },
+      { message }
+    );
+
+  const schema = z.preprocess(
+    (val) => {
+      if (val === "" || val === null || val === undefined) return undefined;
+      return String(val);
+    },
+    required ? baseSchema : baseSchema.optional()
+  );
+
+  return schema;
+};
 

@@ -1821,6 +1821,14 @@ export function useInSessionActions() {
                             name: 'Sucursales'
                         },
                         {
+                            url: '/rrhh/departamentos',
+                            name: 'Departamentos'
+                        },
+                        {
+                            url: '/rrhh/puestos',
+                            name: 'Puestos'
+                        },
+                        {
                             url: '/rrhh/empleados',
                             name: 'Empleados'
                         },
@@ -1830,7 +1838,7 @@ export function useInSessionActions() {
                         // },
                         {
                             url: '/rrhh/vacaciones',
-                            name: 'Gestión de vacaciones'
+                            name: 'Vacaciones'
                         },
                         {
                             url: '/rrhh/dashboard-de-vacaciones',
@@ -1840,25 +1848,38 @@ export function useInSessionActions() {
                             url: '/rrhh/comunicaciones-organizacionales',
                             name: 'Comunicaciones Organizacionales'
                         },
+
                         {
-                            url: '/rrhh/departamentos',
-                            name: 'Departamentos'
+                            url: '/rrhh/categoria-incidencias',
+                            name: 'Categorías de Incidencias'
                         },
                         {
-                            url: '/rrhh/puestos',
-                            name: 'Puestos'
-                        },
-                        {
-                            url: '/rrhh/tipos-incidencias',
+                            url: '/rrhh/tipo-incidencias',
                             name: 'Tipos de Incidencias'
                         },
                         {
-                            url: '/rrhh/incidencias-empleados',
-                            name: 'Incidencias de Empleados'
+                            url: '/rrhh/incidencias',
+                            name: 'Incidencias'
                         },
                         {
                             url: '/rrhh/vacantes',
                             name: 'Vacantes'
+                        },
+                        {
+                            url: '/rrhh/competencias',
+                            name: 'Competencias'
+                        },
+                        {
+                            url: '/rrhh/gestion-desempeno',
+                            name: 'Gestión de desempeño'
+                        },
+                        {
+                            url: '/rrhh/gestion-talentos',
+                            name: 'Gestión de talentos'
+                        },
+                        {
+                            url: '/rrhh/gestion-beneficios',
+                            name: 'Gestión de beneficios'
                         }
                     ]
                 }
@@ -1917,7 +1938,7 @@ export function useInSessionActions() {
                     open: false,
                     views: [
                         {
-                            url: '/marketing/dashboard',
+                            url: '/marketing',
                             name: 'Dashboard'
                         },
                         {

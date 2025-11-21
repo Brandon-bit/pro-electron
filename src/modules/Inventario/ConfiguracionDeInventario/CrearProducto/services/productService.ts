@@ -1,0 +1,16 @@
+import axiosApiInstance from '@/api/axiosApiInstance'
+
+export const getStoresService = () => axiosApiInstance.get('/stores')
+export const getWareHousesService = () => axiosApiInstance.get('/warehouse')
+export const getSellingTypesService = () => axiosApiInstance.get('/sellingType')
+export const getCategoriesService = () => axiosApiInstance.get('/category')
+export const getSubcategoriesService = () => axiosApiInstance.get('/subcategory')
+export const getUnitsService = () => axiosApiInstance.get('/unit')
+export const getBrandsService = () => axiosApiInstance.get('/brand')
+export const getBarcodeSimbologiesService = () => axiosApiInstance.get('/barcodeSimbology')
+export const getVariantsServices = () => axiosApiInstance.get('/variant')
+export const getValueVariantsServices = () => axiosApiInstance.get('/valueVariant')
+export const getTaxTypesService = () => axiosApiInstance.get('/taxType')
+export const getTaxesService = () => axiosApiInstance.get('/tax')
+export const getDiscountTypesService = () => axiosApiInstance.get('/discountType')
+export const getLastNumberBarcodeService = () => axiosApiInstance.get('/lastNumberBarcode')

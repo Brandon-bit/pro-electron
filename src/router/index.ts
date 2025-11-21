@@ -8,15 +8,16 @@ import NavBarRoutes from './NavBarRoutes'
 import DefaultRoutes from './DefaultModuleRoutes'
 import InventarioRoutes from './InventarioRoutes'
 import ProcesosRoutes from './ProcesosRoutes'
-// import MarketingRoutes from './MarketingRoutes'
-// import PosRoutes from './POSRoutes'
+import TesoreriaRoutes from './TesoreriaRoutes'
+import MarketingRoutes from './MarketingRoutes'
+import PosRoutes from './POSRoutes'
 import ContabilidadRoutes from './ContabilidadRoutes'
-// import ComprasRoutes from './ComprasRoutes'
+import ComprasRoutes from './ComprasRoutes'
 import AdministracionRoutes from './AdministracionRoutes'
-// import FacturacionRoutes from './FacturacionRoutes'
-// import RRHHRoutes from './RRHHRoutes'
-// import NominaRoutes from './NominaRoutes'
-// import SalesRoutes from './SalesRoute'
+import FacturacionRoutes from './FacturacionRoutes'
+import RRHHRoutes from './RRHHRoutes'
+import NominaRoutes from './NominaRoutes'
+import SalesRoutes from './SalesRoute'
 import PlaneacionEstrategicaRoutes from './PlaneacionEstrategicaRoutes'
 import MesaDeControlRoutes from './MesaDeControlRoutes'
 import FiscalRoutes from './FiscalRoutes'
@@ -38,14 +39,15 @@ const routes = [
             ...ProcesosRoutes,
             ...InventarioRoutes,
             ...ContabilidadRoutes,
-            // ...MarketingRoutes,
-            // ...ComprasRoutes,
+            ...TesoreriaRoutes,
+            ...MarketingRoutes,
+            ...ComprasRoutes,
             ...AdministracionRoutes,
-            // ...FacturacionRoutes,
-            // ...PosRoutes,
-            // ...RRHHRoutes,
-            // ...NominaRoutes,
-            // ...SalesRoutes,
+            ...FacturacionRoutes,
+            ...PosRoutes,
+            ...RRHHRoutes,
+            ...NominaRoutes,
+            ...SalesRoutes,
             ...PlaneacionEstrategicaRoutes,
             ...MesaDeControlRoutes,
             ...FiscalRoutes,
